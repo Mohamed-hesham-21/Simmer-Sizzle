@@ -6,17 +6,15 @@
 }
 
 .info-container {
-    width: 30%;
-    position: sticky;
+    width: 35%;
+    position: relative;
     border: 1px solid #bbb;
-    border-left: 10px solid orange;
+    border-top: 10px solid rgba(255, 69, 0, 0.9);
     border-radius: 10px;
     margin: 50px;
-    float: right;
     padding: 20px;
-    margin-top: 150px;
     font-size: 14pt;
-    background-color: white;
+    background-color: rgb(255, 249, 249);
 }
 
 .info-item {
@@ -55,13 +53,18 @@ hr {
 .recipe-title {
     font-size: 40px;
     font-weight: 700;
+    padding-bottom: 20px;
 }
 
 .recipe-desc {
+    border-left: 5px solid rgba(255, 69, 0, 0.9);
     font-size: 13pt;
+    margin-bottom: 30px;
+    padding: 15px;
 }
 
 .recipe-img {
+
 }
 
 .recipe-img > img {
@@ -69,79 +72,13 @@ hr {
 }
 
 
-.steps {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-.container{
-    width : 700px;
-}
-
-
-.steps li {
-    max-width: 600px;
-    margin:10px 20px ;
+.recipe-info-container{
+    font-size: 14pt;
     position: relative;
-    padding-left: 40px;
-    counter-increment: lol;
-    font-size: 25px;
-}
-
-.steps li::before {
-
-    text-align: center;
-    line-height: 20px;
-    border: 3px solid orangered;
-    width:20px;
-    height:20px;
-    border-bottom: dotted;
-    border-radius: 50% ;
-    content: counter(lol);
-    position: absolute;
-    left: 0;
-    font-size: 20px;
-    font-weight: bold;
-    color: orangered;
-}
-
-.steps li::after {
-    content : "";
-    display : block;
-    width: 100%;
-    height: 1px;
-
-    background : orangered;
-    margin : 20px 0;
-
-    animation-name: bounce;
-    animation-iteration-count: infinite;
-    animation-duration: 3s;
-    animation-direction: alternate;
-
-}
-@keyframes bounce {
-    from { 
-        transform: scaleX(0); 
-    }
-    to { 
-        transform: scaleX(1); 
-    }
-}
-
-.ingredients-container{
-    height: 200px;
-    width:400px;
-    position:absolute;
-    margin:auto;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display : flex;
-    align-items: center;
+    display : inline-block;
     justify-content: space-around;
-
+    padding: 20px;
+    display: block;
 }
 .orange-checkbox {
     appearance: none;
@@ -149,7 +86,7 @@ hr {
     outline: none;
     height: 30px;
     width: 30px;
-    background-color: #eee;
+    background-color: #e3e3e3;
     border-radius: 50px;
     cursor: pointer;
     display: flex;
@@ -165,11 +102,12 @@ hr {
 }
 
 .ingredient-list li{
+    width: fit-content;
     display: flex;
     color:black;
     font-size:20px ;
     font-family: sans-serif;
-    font-weight: 600;
+    /* font-weight: 550; */
     cursor: pointer;
     align-items: center;
     
@@ -200,4 +138,61 @@ hr {
 .orange-checkbox:checked:after {
     display: block;
 }
+
+
+.steps {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+
+.steps li {
+    max-width: 600px;
+    margin:10px 20px ;
+    position: relative;
+    padding-left: 40px;
+    counter-increment: stepCounter;
+    font-size: 20px;
+}
+
+.steps li::before {
+    text-align: center;
+    line-height: 20px;
+    border: 3px solid orangered;
+    width:20px;
+    height:20px;
+    border-radius: 50% ;
+    content: counter(stepCounter);
+    position: absolute;
+    left: 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: orangered;
+}
+
+.steps li::after {
+    content : "";
+    display : block;
+    width: 100%;
+    height: 1px;
+    background : orangered;
+    margin : 20px 0;
+    animation-name: bounce;
+    animation-iteration-count: infinite;
+    animation-duration: 10s;
+    animation-direction: alternate;
+    position: relative;
+    left: -7%;
+}
+@keyframes bounce {
+    from { 
+        transform: scaleX(0); 
+    }
+    to { 
+        transform: scaleX(0.8); 
+    }
+}
+
+
 

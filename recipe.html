@@ -9,7 +9,37 @@
         <title>Simmer & Sizzle</title>
     </head>
     <body>
-        <div class="main-view">
+        <nav class="navbar-container">
+            <div class="navbar row">
+                <a href="#" class="navbar-logo">
+                    <img src="logo.png" width="280">
+                </a>
+                <div class="navbar-items row">
+                    <a href="#" class="navbar-link-item norm-link">Recipes</a>
+                    
+                    <a href="#" class="navbar-link-item norm-link">Favourites</a>
+                    <a href="#" class="navbar-link-item norm-link">Log Out</a>
+                </div>
+                <form method="get">
+                    <div class="navbar-search row">
+                        <input name="q" type="text" class="cool-form form-peach" placeholder="Search">
+                        <button type="submit" class="cool-button button-peach"></button>
+                    </div>
+                </form>
+            </div>
+        </nav>
+        <div class="main-view">    
+            <div class="recipe-container">
+                <div class="recipe-title">
+                    Chicken Fajita Tacos
+                </div>
+                <div class="recipe-desc">
+                    The chicken for these chicken fajita tacos marinates overnight, so you’ll need to plan ahead, but when it comes to preparing dinner, your tacos will be ready in under 30 minutes.
+                </div>
+                <div class="recipe-img">
+                    <img src="https://www.allrecipes.com/thmb/EKJ4GMHLBbxqjd9l17XS_7NSOqA=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/8384320_Chicken-Fajita-Tacos-081d5d65707c497e9a6fb8f9b01b4f04.jpg" width="750" height="400">
+                </div>
+            </div>
             <div class="info-container">
                 <div class="row-sp">
                     <div class="info-item time-item">
@@ -54,30 +84,7 @@
                     </div>
                 </div>
             </div>
-    
-    
-            <div class="recipe-container">
-                <div class="recipe-title">
-                    Chicken Fajita Tacos
-                </div>
-                <div class="recipe-desc">
-                    The chicken for these chicken fajita tacos marinates overnight, so you’ll need to plan ahead, but when it comes to preparing dinner, your tacos will be ready in under 30 minutes.
-                </div>
-                <div class="recipe-img">
-                    <img src="https://www.allrecipes.com/thmb/EKJ4GMHLBbxqjd9l17XS_7NSOqA=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/8384320_Chicken-Fajita-Tacos-081d5d65707c497e9a6fb8f9b01b4f04.jpg" width="700" height="400">
-                </div>
-            </div>
-    
-            <div class="steps-container">
-                <h1 class="info-heading">Steps</h1>
-                <ul class="steps">
-                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
-                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
-                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
-                </ul>
-            </div>
-            
-            <div class="ingredients-container">
+            <div class="recipe-info-container">
                 <h1 class="info-heading">Ingredients</h1>
                 <ul class="ingredient-list">
                     <li><input type="checkbox" class="orange-checkbox" > <span>Milk</span></li>
@@ -87,6 +94,55 @@
                     <li><input type="checkbox" class="orange-checkbox" > <span>Baking Powder</span></li>
                     <li><input type="checkbox" class="orange-checkbox"> <span>Orange</span></li>
                 </ul>
+            </div>
+
+            <div class="recipe-info-container">
+                <h1 class="info-heading">Steps</h1>
+                <ul class="steps">
+                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
+                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
+                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
+                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
+                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
+                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
+                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
+                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
+                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
+                    <li>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Officia autem aliquid maiores</li>
+                </ul>
+            </div>
+            <div class="recommendations-container">
+                <div class="fancy-header">We think you'll also like</div>
+                <div class="card-view">
+                    <div class="card-container">
+                        <div class="card">
+                            <div class="card-fav-icon">
+                            </div>
+                            <img src="food.jpg" alt="simmer & sizzle">
+                            <div class="card-content">
+                                <h3>Salad</h3>
+                                <p>
+                                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, adipisci nobis! R...
+                                </p>
+                                <button class="cool-button button-peach">Read More</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-container">
+                        <div class="card">
+                            <div class="card-fav-icon">
+                            </div>
+                            <img src="food.jpg" alt="simmer & sizzle">
+                            <div class="card-content">
+                                <h3>Salad</h3>
+                                <p>
+                                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, adipisci nobis! R...
+                                </p>
+                                <button class="cool-button button-peach">Read More</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </body>
