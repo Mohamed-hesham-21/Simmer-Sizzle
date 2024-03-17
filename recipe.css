@@ -1,4 +1,3 @@
-
 .info-heading {
     text-align: left;
     font-size: 30px;
@@ -45,9 +44,22 @@ hr {
 } 
 
 .recipe-container {
-    margin: 40px;
-    border-radius: 10px;
-    width: 50%;
+    margin: 20px 40px;
+}
+
+.recipe-link {
+    font-size: 17px;
+    font-family: cursive;
+    padding: 10px;
+    margin: 10px 0px;
+}
+
+.recipe-link > li {
+    all: unset;
+}
+
+.recipe-link > li + li::before{
+    content: ">";
 }
 
 .recipe-title {
@@ -56,15 +68,8 @@ hr {
     padding-bottom: 20px;
 }
 
-.recipe-desc {
-    border-left: 5px solid rgba(255, 69, 0, 0.9);
-    font-size: 13pt;
-    margin-bottom: 30px;
-    padding: 15px;
-}
-
 .recipe-img {
-
+    width: fit-content;
 }
 
 .recipe-img > img {
@@ -72,7 +77,7 @@ hr {
 }
 
 
-.recipe-info-container{
+.recipe-info-container {
     font-size: 14pt;
     position: relative;
     display : inline-block;
@@ -95,30 +100,27 @@ hr {
     transition: background-color 0.3s ease;
 }
 
-.ingredient-list{
+.ingredient-list {
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
-.ingredient-list li{
+.ingredient-list li {
     width: fit-content;
     display: flex;
     color:black;
     font-size:20px ;
     font-family: sans-serif;
-    /* font-weight: 550; */
-    cursor: pointer;
     align-items: center;
-    
 }
 
-.ingredient-list span
+.ingredient-list  span
 {
     margin-left: 15px;
 }
 
-.orange-checkbox:after{
+.orange-checkbox:after {
     font-family:sans-serif;
     font-weight: 900 ;
     content: "\2713";
@@ -145,7 +147,6 @@ hr {
     padding: 0;
     margin: 0;
 }
-
 
 .steps li {
     max-width: 600px;

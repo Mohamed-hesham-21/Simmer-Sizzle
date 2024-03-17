@@ -43,12 +43,19 @@ a.norm-link:visited {
     color: black;
 }
 
-.fancy-header {
+.fancy-header, .category-header {
     font-size: 27px;
     font-family: cursive;
     font-weight: 550;
 }
 
+.cool-text-container {
+    border-left: 5px solid rgba(255, 69, 0, 0.9);
+    font-size: 13pt;
+    margin: 30px 0px;
+    padding: 15px;
+    max-width: 60%;
+}
 
 .navbar-container {
     position: fixed;
@@ -66,7 +73,6 @@ a.norm-link:visited {
     height: 50%;
     padding: 30px;
 }
-
 
 .navbar-logo {
     margin-right: auto;
@@ -89,7 +95,6 @@ a.norm-link:visited {
 .navbar-link-item:not(.drop-down-button):hover {
     color: orangered;
 }
-
 
 .navbar-search {
     height: 40px;
@@ -124,13 +129,31 @@ a.norm-link:visited {
     display: inline-block;
 }
 
+@keyframes drop-down-fade {
+    from {
+        max-height: 0px;
+    }
+    to {
+        max-height: 200px;
+    }
+}
+
 .drop-down-options {
    display: none;
-   background-color: #f9f9f9;
+   background-color: #fff8f8;
+   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
    padding: 10px 5px;
    position: absolute;
-   max-height: 150px;
+   max-height: 200px;
    overflow: auto;
+   border-radius: 10px;
+   animation-name: drop-down-fade;
+   animation-duration: 0.3s;
+   animation-iteration-count: 1;
+}
+
+.drop-down-options::-webkit-scrollbar {
+    display: none;
 }
 
 .drop-down-button:hover {
@@ -138,6 +161,7 @@ a.norm-link:visited {
 }
 
 .drop-down-menu:hover .drop-down-options {
+    animation-play-state: running;
     display: block;
 }
 
@@ -190,13 +214,24 @@ a.norm-link:visited {
     background-color: orangered;
 }
 
+.register-view {
+    position: relative;
+    width: 100px;
+}
+
+.bg-image-container {
+    
+}
+
+
 .form-container {
     width: 20%;
-    margin: 50px auto;
+    margin: 10% auto;
     border: 1px solid #ccc;
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0px 0px 5px #ccc;
+    background-color: rgb(255, 249, 249);
 }
 
 .form-header {
@@ -206,7 +241,6 @@ a.norm-link:visited {
     padding-bottom: 20px;   
 }
 
-
 .form-footer {
     padding-top: 10px;
 }
@@ -215,6 +249,12 @@ a.norm-link:visited {
     padding: 10px;
     font-size: 11pt;
 }
+
+.category-header {
+    margin: 0px 20px;
+    font-size: 35px;
+}
+
 
 .card-view {
     display: flex;
@@ -281,3 +321,10 @@ a.norm-link:visited {
     overflow: auto;
 }
 
+.image-input-tag {
+    
+}
+
+.image-input-tag > input[type=file] {
+    display: none;
+}
