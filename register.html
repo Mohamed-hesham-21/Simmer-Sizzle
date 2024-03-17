@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" href="logo.png">
         <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="recipe.css">
         <title>Simmer & Sizzle</title>
     </head>
     <body>
@@ -26,13 +27,16 @@
                     <div class="row">
                         <input name="pass_confirm" type="password" class="cool-form space" placeholder="Confirm Password">
                     </div>
-                    <input type="hidden" name="is_admin" value="0">
+                    <div class="row admin-checkbox">
+                        <input type="checkbox" class="cool-form" name="is_admin">
+                        <span>I'd like to become an admin</span>
+                    </div>
                 </div>
                 <div class="form-footer">
                     <div class="form-warning">
                         Already have an account? <a class="cool-link" href="login.html">Login</a>
                     </div>
-                    <button type="submit" class="cool-button button-orange space">Register</button>
+                    <button type="submit" class="cool-button space">Register</button>
                 </div>
             </form>
         </div>
