@@ -7,11 +7,32 @@ body {
 
 body, .cool-form, .cool-button {
     font-size: 12pt;
-}
 
+}
+.register-background{
+    background-color: orangered;
+}
+.background-container{
+    position: relative;
+    width: 1200px;
+    height:  690px;
+    z-index: -1;
+    display: inline-block;
+    /*border: 1px solid black;*/
+    overflow: hidden;
+
+}
+#BackGround-image{
+    position: relative;
+    width: 100%;
+    left: -30%;
+    height : 100%;
+
+    /*box-shadow: 5px 5px 20px rgba(0,0,0);*/
+    transform: skew(-20deg);
+}
 .main-view {
-    padding: 50px;
-    padding-top: 100px;
+    padding: 100px 50px 50px 50px;
 }
 
 .space {
@@ -27,12 +48,11 @@ body, .cool-form, .cool-button {
 }
 
 a.cool-link {
-    color: orangered;
     text-decoration: none;
 }
 
 a.cool-link:visited {
-    color: orangered;
+    color: blue;
 }
 
 a.norm-link {
@@ -42,81 +62,6 @@ a.norm-link {
 
 a.norm-link:visited {
     color: black;
-}
-
-.cool-form:not(input[type="checkbox"]) {
-    display: block;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-sizing: border-box;
-    width: 100%;
-    background-color: rgba(0, 0, 0, 0);
-    transition: all 0.2s ease-in-out;
-}
-
-.cool-form:not(input[type="checkbox"]):focus {
-    outline: 0;
-    border-color: orangered;
-    box-shadow: 0 0 0 5px  rgba(255, 69, 0, 0.35)
-}
-
-.cool-form[type="checkbox"] {
-    all: unset;
-    outline: none;
-    height: 20px;
-    width: 20px;
-    font-size: 15px;
-    background-color: #e3e3e3;
-    border-radius: 50px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s ease;
-}
-
-.checkbox-bg[type="checkbox"] {
-    height: 30px;
-    width: 30px;
-    font-size: 20px;
-}
-
-.cool-form[type="checkbox"]:after {
-    font-family: sans-serif;
-    font-weight: 900 ;
-    content: "\2713";
-    color : white;
-    display: none;
-}
-
-.cool-form[type="checkbox"]:hover {
-    background-color: #dcd8d8;
-}
-.cool-form[type="checkbox"]:checked {
-    background-color:orangered;
-
-}
-.cool-form[type="checkbox"]:checked:after {
-    display: block;
-}
-
-.cool-button {
-    padding: 7px 10px ;
-    border: 1px solid orangered;
-    border-radius: 7px;
-    background-color: rgba(0, 0, 0, 0);
-    color: orangered;
-    text-decoration: none;
-    display: inline-block;
-    transition: all 0.3s;
-    box-sizing: border-box;
-}
-
-.cool-button:hover {
-    background-color: orangered;
-    color: black;
-    cursor: pointer;
 }
 
 .fancy-header, .category-header {
@@ -180,7 +125,7 @@ a.norm-link:visited {
 
 .navbar-search > input[type=text] {
     width: 300px;
-    margin: 0px 10px;
+    margin: 0 10px;
     background-color: white;
     border-radius: 60px;
 }
@@ -207,7 +152,7 @@ a.norm-link:visited {
 
 @keyframes drop-down-fade {
     from {
-        max-height: 0px;
+        max-height: 0;
     }
     to {
         max-height: 200px;
@@ -241,18 +186,76 @@ a.norm-link:visited {
     display: block;
 }
 
+.cool-form {
+    display: block;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    transition: all 0.2s ease-in-out;
+}
+
+.cool-form:focus {
+    outline: 0;
+    border-color: orange;
+    box-shadow: 0 0 0 5px  rgba(255, 165, 0, 0.35);
+}
+
+.form-peach:focus {
+    border-color: orangered;
+    box-shadow: 0 0 0 5px  rgba(255, 69, 0, 0.35)
+}
+
+.cool-button {
+    padding: 7px 10px ;
+    border: 1px solid orange;
+    border-radius: 7px;
+    background-color: rgba(0, 0, 0, 0);
+    color: orange;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s;
+    box-sizing: border-box;
+}
+
+.cool-button:hover {
+    background-color: orange;
+    color: black;
+    cursor: pointer;
+}
+
+.button-peach {
+    border-color: orangered;
+    color: orangered;
+}
+
+.button-peach:hover {
+    background-color: orangered;
+}
+
 .register-view {
     position: relative;
     width: 100px;
 }
 
+.bg-image-container {
+    
+}
+
+
 .form-container {
+    position: absolute;
+    z-index: 1;
+    top: 25%;
+    left: 60%;
     width: 20%;
-    margin: 10% auto;
+    align-items: center;
     border: 1px solid #ccc;
     border-radius: 10px;
     padding: 20px;
-    box-shadow: 0px 0px 5px #ccc;
+    box-shadow: 0 0 5px #ccc;
     background-color: rgb(255, 249, 249);
 }
 
@@ -262,15 +265,6 @@ a.norm-link:visited {
     font-family: cursive;
     padding-bottom: 20px;   
 }
-
-.admin-checkbox {
-    padding: 20px 0px 5px 10px
-}
-
-.admin-checkbox > span {
-    padding-left: 10px;
-}
-
 
 .form-footer {
     padding-top: 10px;
@@ -285,6 +279,7 @@ a.norm-link:visited {
     margin: 0px 20px;
     font-size: 35px;
 }
+
 
 .card-view {
     display: flex;
@@ -305,8 +300,7 @@ a.norm-link:visited {
     position: relative;
 }
 
-.card-fav-button {
-    display: inline-block;
+.card-fav-icon {
     width: 40px;
     height: 40px;
     border: 1px solid orangered;
@@ -321,12 +315,12 @@ a.norm-link:visited {
     right: 0%;
 }
 
-.card-fav-button:hover {
+.card-fav-icon:hover {
     cursor: pointer;
     background-image: url("heart_filled.png");
 }
 
-.card-fav-button-filled {
+.card-fav-icon-filled {
     background-image: url("heart_filled.png");
 }
 
@@ -350,4 +344,84 @@ a.norm-link:visited {
     line-height: 1.3;
     max-height: 70px;
     overflow: auto;
+}
+
+.image-input-tag {
+    
+}
+
+.image-input-tag > input[type=file] {
+    display: none;
+}
+.About-us-row{
+
+    margin: auto;
+    width: 1100px;
+    padding: 10px;
+    height: 600px;
+
+}
+.About-us-row > .content{
+    display: flex;
+}
+.About-us-row > .heading{
+    color: orangered;
+    text-align: center;
+    font-size:70px;
+
+}
+
+.sent{
+
+    max-width: 60%;
+
+}
+.special-sent{
+    width: 100%;
+    height : 20%;
+    margin : 0 auto;
+    text-align: center;
+}
+.subheading{
+    margin: 15px;
+}
+.content-section{
+    padding:10px;
+    font-size: 30px;
+
+    font-weight:bold;
+}
+.icons-container{
+    position: relative;
+
+    width :90%;
+    height: 40%;
+
+}
+.social_site{
+    display: inline-block;
+    padding: 10px;
+    position: relative;
+
+}
+.icon{
+    width : 50px;
+}
+.social-text{
+    position: relative;
+    top: -15px;
+    left: 11px;
+    font-size: 28px;
+}
+
+
+.image-container{
+    width: 100%;
+    height: 100%;
+    text-shadow: 5px 5px 10px black;
+}
+#image{
+
+    box-shadow: 5px 5px 10px black;
+
 }
