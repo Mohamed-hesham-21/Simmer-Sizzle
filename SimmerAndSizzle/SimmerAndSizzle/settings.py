@@ -20,17 +20,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-e=%q9t3#@bp#jss5_j4j9)vi0+_57$lov1b$4c)8_5#pj%sf#!"
+SECRET_KEY = "django-insecure-m65z(i=t1e_rgx0$06@*$4viijxqe!9o1ff=k*%vz&w)u_0f%k"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = "RecipeFinder.User" 
 
 # Application definition
 
 INSTALLED_APPS = [
+    "RecipeFinder",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

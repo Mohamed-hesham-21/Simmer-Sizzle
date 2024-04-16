@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="form-container">
+    <div class="form-left-half">
+        <div class="form-header">
+            Welcome Back Chef!
+        </div>
+        <form method="post" action="#">
+            <div class="form-fields">
+                <div class="form-field">
+                    <input type="text" class="fancy-register-form" placeholder="Username">
+                </div>
+                <div class="form-field">
+                    <input type="password" class="fancy-register-form" placeholder="Password">
+                </div>
+            </div>
+            <div class="form-footer">
+                <div class="form-field">
+                    <button type="submit" class="fancy-register-button space">Login</button>
+                </div>
+                <div class="form-warning">
+                    Don't have an account yet? <a class="cool-link" href="{% url 'register' %}">Register</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="form-right-half">
+        <div class="form-image-container">
+            <img src="{% static 'chef.png' %}" class="centered-image">
+        </div>
+    </div>
+    <div class="bottom-left-tools-img">
+        <img src="{% static 'tools.png' %}">
+    </div>
+</div>
+{% endblock %}

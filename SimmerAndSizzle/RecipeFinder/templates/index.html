@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body %}
+{% for category in categories %}
+<div class="category-container">
+    <div class="row">
+        <div class="fancy-header">{{ category.name }}</div> 
+        <button class="bland-button space">See more</button>
+    </div>
+    <div class="card-view">
+        {% for recipe in category.recipes %}
+        <div class="card-container">
+            <div class="card">
+                <button class="card-fav-button"></button>
+                <img src="{% static 'food.jpg' %}" alt="simmer & sizzle">
+                <div class="card-content">
+                    <h3>Recipe name</h3>
+                    <p>
+                        Recipe description goes here...
+                    </p>
+                    <button class="cool-button button-peach">Read More</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" href="{% static 'icon.png' %}">
+        <link rel="stylesheet" href="{% static 'styles.css' %}">
+        <link rel="stylesheet" href="{% static 'recipe.css' %}">
+        <script src="{% static 'script.js' %}"></script>
+        <title>{% block title %} Simmer & Sizzle {% endblock %}</title>
+    </head>
+    <body>
+        <nav class="navbar-container">
+            <div class="navbar row">
+                <a href="#" class="navbar-logo">
+                    <img src="{% static 'logo.png' %}" width="280">
+                </a>
+                <div class="navbar-items row">
+                    <a href="#" class="navbar-link-item norm-link">Recipes</a>
+                    <div class="drop-down-menu">
+                        <a class="drop-down-button navbar-link-item norm-link">Cuisines</a>
+                        <div class="drop-down-options">
+                            <a href="#" class="navbar-link-item norm-link">Egyptian</a>
+                            <a href="#" class="navbar-link-item norm-link">Italian</a>
+                            <a href="#" class="navbar-link-item norm-link">Chinese</a>
+                            <a href="#" class="navbar-link-item norm-link">Mexican</a>
+                            <a href="#" class="navbar-link-item norm-link">Indian</a>
+                            <a href="#" class="navbar-link-item norm-link">Japanese</a>
+                            <a href="#" class="navbar-link-item norm-link">French</a>
+                            <a href="#" class="navbar-link-item norm-link">Canadian</a>
+                        </div>
+                    </div>
+                    <a href="#" class="navbar-link-item norm-link">Favourites</a>
+                    <a href="#" class="navbar-link-item norm-link">About Us</a>
+                    {% if not user.is_authenticated %}
+                    <a href="#" class="navbar-link-item norm-link">Register</a>
+                    <a href="#" class="navbar-link-item norm-link">Login</a>
+                    {% else %}
+                    <a href="#" class="navbar-link-item norm-link">Logout</a>
+                    {% if user.isAdmin %}
+                    <a href="#" class="navbar-link-item norm-link">Add Recipe</a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                <form method="get">
+                    <div class="navbar-search row">
+                        <input name="q" type="text" class="cool-form form-peach" placeholder="Search">
+                        <button type="submit" class="cool-button button-peach"></button>
+                    </div>
+                </form>
+            </div>
+        </nav>
+
+        <div class="main-view">
+            <!-- Page contents go here -->
+            {% block body %}
+            {% endblock %}
+        </div>
+    </body>
+</html>
