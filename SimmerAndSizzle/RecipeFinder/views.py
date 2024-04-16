@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import User, Cuisine, Ingredient, Recipe, Unit, HasIngredient, Like
+from .models import User, Cuisine, Ingredient, Course, Recipe, HasStep, HasIngredient, Like
 # Create your views here.
 
 def index(request):

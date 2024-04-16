@@ -7,6 +7,7 @@ class User(AbstractUser):
 
 class Cuisine(models.Model):
     name = models.CharField(max_length=100)
+    info = models.TextField(max_length=1000)
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=100)
@@ -19,7 +20,7 @@ class Ingredient(models.Model):
         return self.carbs * 4 + self.protein * 4 + self.fats * 9
 
 class Course(models.Model):
-    courses = ["Appetizers", "Main Course", "Dessert"]
+    courses = [("Appetizers", "Appetizers"), ("Main Course", "Main Course"), ("Dessert", "Dessert")]
     name = models.CharField(max_length=25, choices=courses)
 
 class Recipe(models.Model):
