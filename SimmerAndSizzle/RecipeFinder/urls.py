@@ -14,15 +14,17 @@ urlpatterns = [
     path("favourites", views.favourites, name="favourites"),
     # path("search", views.search, name="search"),
 
-    path("recipe/<int:id>", views.recipe_view, name="recipe"),
-    path("cuisine/<int:id>", views.cuisine_view, name="cuisine"),
-    path("cuisine/<int:id>/<str:course>", views.course_view, name="course"),
-
-    # path("ingredient/<int:id>", views.ingredient_view, name="ingredient"),
+    path("recipes", views.all_recipe_view, name="all_recipes"),
+    path("recipes/<int:id>", views.recipe_view, name="recipe"),
+    path("cuisines", views.all_cuisines_view, name="all_cuisines"),
+    path("cuisines/<int:id>", views.cuisine_view, name="cuisine"),
+    path("cuisines/<int:id>/<str:course>", views.course_view, name="course"),
+    path("ingredients", views.all_ingredients_view, name="all_ingredients"),
+    path("ingredients/<int:id>", views.ingredient_view, name="ingredient"),
 
     # API
-    # path("add_recipe", views.add_recipe, name="add_recipe"),
-    path("recipe/<int:id>/like", views.like_recipe, name="like_recipe"),
-    # path("recipe/<int:id>/edit", views.recipe, name="edit_recipe"),
-    # path("recipe/<int:id>/edit_image", views.recipe, name="edit_recipe"),
+    path("add_recipe", views.add_recipe, name="add_recipe"),
+    path("recipes/<int:id>/like", views.like_recipe, name="like_recipe"),
+    path("recipe/<int:id>/edit", views.edit_recipe, name="edit_recipe"),
+    path("recipe/<int:id>/delete", views.delete_recipe, name="delete_recipe"),
 ]

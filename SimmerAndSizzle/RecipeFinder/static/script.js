@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function toggleSave(button) {
     button.innerHTML = (button.innerHTML == "Save" ? "Unsave" : "Save");
-    fetch(`/recipe/${button.dataset.id}/like`, {
+    fetch(`/recipes/${button.dataset.id}/like`, {
         method: 'POST',
         headers: {
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -39,7 +39,7 @@ function toggleLike(button) {
     else {
         button.classList.add("card-fav-button-filled");
     }
-    fetch(`/recipe/${button.dataset.id}/like`, {
+    fetch(`/recipes/${button.dataset.id}/like`, {
         method: 'POST',
         headers: {
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,

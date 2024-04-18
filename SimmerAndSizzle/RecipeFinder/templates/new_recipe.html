@@ -9,8 +9,19 @@
     <div class="row">
         <textarea name="description" rows="6" class="cool-form space" placeholder="Description" value="{% block description %}{% endblock %}"></textarea>
     </div>
-    <div class="row">
-        <input name="image_url" type="url" class="cool-form space" placeholder="Image url">
+    <div class="row-sp">
+        <select name="cuisine" class="cool-form space">
+            <option selected value="">Cuisine</option>
+            {% for cuisine in cuisines %}
+            <option value=""> {{ cuisine }} </option>
+            {% endfor %}
+        </select>
+        <select name="cuisine" class="cool-form space">
+            <option selected value="">Course</option>
+            {% for course in courses %}
+            <option value=""> {{ course }} </option>
+            {% endfor %}
+        </select>
     </div>
     <div class="row-sp">
         <input name="prep_time" type="number" class="cool-form space" placeholder="Prep time (mins)" value="{% block prepTime %}{% endblock %}">
@@ -26,14 +37,7 @@
             </ol>
             <div class="new-item-form-container space">
                 <div class="row-sp">
-                    <select id="new-ingredient-name" name="name" class="cool-form space">
-                        <option selected value="">Ingredient</option>
-                        <option value="Egg">Egg</option>
-                        <option value="Milk">Milk</option>
-                        <option value="Flour">Flour</option>
-                        <option value="Butter">Butter</option>
-                        <option value="Baking powder">Baking powder</option>
-                    </select>
+                    <input type="text" class="cool-form space">
                     <input id="new-ingredient-quantity" name="quantity" type="number" class="cool-form space" placeholder="Quantity">
                     <select id="new-ingredient-unit" name="unit" id="" class="cool-form space">
                         <option selected value="">Unit</option>

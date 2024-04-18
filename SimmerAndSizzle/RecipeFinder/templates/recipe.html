@@ -75,9 +75,9 @@
             <div class="recipe-info-container">
                 <h1 class="info-heading">Ingredients</h1>
                 <ul class="ingredient-list">
-                    {% for ingredient in ingredients %}
+                    {% for ingredient in recipe.getIngredients %}
                         <li><input type="checkbox" class="cool-form checkbox-bg"> <span>
-                        {{ ingredient.quantity }} {{ ingredient.ingredient.unit }} of {{ ingredient.ingredient.name }}
+                        {{ ingredient.quantity }} {{ ingredient.unit }} of {{ ingredient.name }}
                         </span></li>
                     {% endfor %}
                 </ul>
@@ -86,7 +86,7 @@
             <div class="recipe-info-container">
                 <h1 class="info-heading">Steps</h1>
                 <ol class="cool-ol bouncy-list">
-                    {% for step in steps %}
+                    {% for step in recipe.getSteps %}
                     <li>
                         {{ step.content }}
                     </li>
