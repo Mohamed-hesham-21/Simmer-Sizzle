@@ -11,6 +11,39 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector("#step-list").querySelectorAll("li").forEach(item => {
         item.querySelector("button").onclick = () => item.remove();
     });
+    document.getElementById('input-image').addEventListener('change', function() {
+        console.log("you select")
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('uploaded-image').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+
+function uploadImage() {
+    const image = document.getElementByName('input-image');
+    let name = document.getElementsByName('name')
+    let description  = document.getElementsByName('description ')
+    let prepTime = document.getElementsByName('prepTime')
+    let cookTime = document.getElementsByName('cookTime')
+    let servings = document.getElementsByName('servings')
+    let ingredients ={ ingredients :  document.getElementsByName('ingredients'), quantity : document.getElementByName('Quantity') ,
+    let name = document.getElementsByName('name')
+    let name = document.getElementsByName('name')
+    let name = document.getElementsByName('name')
+    let name = document.getElementsByName('name')
+
+    const data = new FormData();
+    data.append('image', image.files[0]);
+    fetch('/upload/', {method: 'POST', body : data ,   })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+}
 })
 
 

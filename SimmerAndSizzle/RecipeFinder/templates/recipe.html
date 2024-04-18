@@ -20,7 +20,7 @@
                         <button class="bland-button">Edit</button>
                     </div>
                     <div class="recipe-img">
-                        <img src="{% if recipe.imageURL %} {{recipe.imageURL}} {% else %} {% static 'food.jpg' %}{% endif %}" width="750" height="400">
+                        <img src="{{ recipe.image.url }}" width="750" height="400">
                     </div>
                 </div>
                 <div class="info-container">
@@ -96,7 +96,7 @@
                     <div class="card-container">
                         <div class="card">
                             <button class="card-fav-button"></button>
-                            <img src="{% static 'food.jpg' %}" alt="simmer & sizzle">
+                            <img src="{{ recipe.image.url }}" alt="simmer & sizzle">
                             <div class="card-content">
                                 <h3> {{ recipe.name }} </h3>
                                 <p>
@@ -105,7 +105,9 @@
                                     ...
                                     {% endif %}
                                 </p>
-                                <button class="cool-button button-peach">Read More</button>
+                                <a href="{% url 'recipe' recipe.id %}">
+                                    <button class="cool-button button-peach">Read More</button>
+                                </a>
                             </div>
                         </div>
                     </div>

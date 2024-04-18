@@ -6,7 +6,10 @@ from django.core.exceptions import ValidationError
 class User(AbstractUser):
     isAdmin = models.BooleanField(default=True)
 
-
+class Image(models.Model):
+    image = models.ImageField(upload_to='images/')
+    def __str__(self):
+        return self.image.name
 class Cuisine(models.Model):
     name = models.CharField(max_length=100)
     info = models.TextField(max_length=1000)
@@ -43,7 +46,8 @@ class Recipe(models.Model):
     prepTime = models.IntegerField()
     cookTime = models.IntegerField()
     servings = models.IntegerField()
-    imageURL = models.URLField(null=True)
+    image = models.ImageField(upload_to='images/' , null = True)
+    
 
     def __str__(self):
         return self.name

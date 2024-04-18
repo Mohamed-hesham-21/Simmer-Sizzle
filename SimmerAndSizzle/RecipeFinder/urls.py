@@ -8,8 +8,7 @@ urlpatterns = [
     path("login", views.login_view, name="login"),
     path("logout", views.logout_view, name="logout"),
     path("new_recipe", views.new_recipe, name="new_recipe"),
-
-
+    path('upload/', views.upload_image, name='upload_image'),
     path("about", views.about, name="about"),
     path("favourites", views.favourites, name="favourites"),
     # path("search", views.search, name="search"),

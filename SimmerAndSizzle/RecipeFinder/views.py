@@ -1,10 +1,9 @@
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-
-from .models import User, Cuisine, Ingredient, Recipe, Step, HasIngredient, Like
+from django.contrib.auth import authenticate, login, logout # type:ignore
+from django.contrib.auth.decorators import login_required # type:ignore
+from django.shortcuts import render , redirect # type:ignore
+from django.http import HttpResponseRedirect # type:ignore
+from django.urls import reverse # type:ignore
+from .models import User, Cuisine, Ingredient, Recipe, Step, HasIngredient, Like , Image
 # Create your views here.
 
 def index(request):
@@ -58,6 +57,8 @@ def logout_view(request):
 
 def recipe_view(request, id):
     recipe = Recipe.objects.get(id=id)
+    print(recipe.image)
+    print("**************************************")
     return render(request, "recipe.html", {
         "recipe": recipe,
         "steps": recipe.steps.order_by('index'),
@@ -84,3 +85,14 @@ def favourites(request):
     return render(request, "index.html", {
         "categories": categories,
     })
+
+def upload_image(request):
+    if request.method == 'POST':
+        image_file = request.FILES['image']
+        new_image = Image(image = image_file )
+        new_image.save()
+        print(image_file)
+        print("**************************************************************")
+        return render(request)
+    else:
+        return render(request, 'upload_form.html')  

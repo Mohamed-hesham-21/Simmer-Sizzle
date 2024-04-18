@@ -38,7 +38,7 @@
                             {% if user.is_authenticated %}
                             {% if user.isAdmin %}
                             <a href="#" class="navbar-link-item norm-link">Your Recipes</a>
-                            <a href="{% url 'new_recipe' %}" class="navbar-link-item norm-link">Add Recipe</a>
+                            <span> <a href="{% url 'new_recipe' %}" class="navbar-link-item norm-link">Add Recipe</a> </span>
                             {% endif %}
                             <a href="#" class="navbar-link-item norm-link">Favourites</a>
                             <a href="{% url 'logout' %}" class="navbar-link-item norm-link">Logout</a>
@@ -46,7 +46,6 @@
                             <a href="{% url 'register' %}" class="navbar-link-item norm-link">Register</a>
                             <a href="{% url 'login' %}" class="navbar-link-item norm-link">Login</a>
                             {% endif %}
-
                         </div>
                     </div>
                 </div>

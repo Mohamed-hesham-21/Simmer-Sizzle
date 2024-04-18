@@ -9,9 +9,19 @@
     <div class="row">
         <textarea name="description" rows="6" class="cool-form space" placeholder="Description"></textarea>
     </div>
-    <div class="row">
-        <input name="image_url" type="url" class="cool-form space" placeholder="Image url">
+    <div class = "image-uploader-container">  
+        <label for="input-image" class="image-label"> 
+            <div class = "image-u-container">
+                <img src="{% static 'cameraicon.png'%}" alt="" id ="uploaded-image" width="45%">
+
+            </div>
+        </label>
     </div>
+    <form method="POST" enctype="multipart/form-data" action="/upload/" class = "image"> 
+        {% csrf_token %} 
+        <input type="file" name="image" accept="image/jpeg , image/png , image/jpg" id="input-image" style="display:none;">
+        <button type="submit">click me</button>
+    </form>
     <div class="row-sp">
         <input name="prep_time" type="number" class="cool-form space" placeholder="Prep time (mins)">
         <input name="cook_time" type="number" class="cool-form space" placeholder="Cook time (mins)">
@@ -62,4 +72,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
