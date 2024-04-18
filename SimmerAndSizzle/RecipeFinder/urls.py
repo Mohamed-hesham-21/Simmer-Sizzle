@@ -15,11 +15,14 @@ urlpatterns = [
     # path("search", views.search, name="search"),
 
     path("recipe/<int:id>", views.recipe_view, name="recipe"),
-    # path("cuisine/<int:id>", views.cuisine, name="view_cuisine"),
-    # path("ingredient/<int:id>", views.ingredient, name="view_ingredient"),
+    path("cuisine/<int:id>", views.cuisine_view, name="cuisine"),
+    path("cuisine/<int:id>/<str:course>", views.course_view, name="course"),
+
+    # path("ingredient/<int:id>", views.ingredient_view, name="ingredient"),
 
     # API
     # path("add_recipe", views.add_recipe, name="add_recipe"),
-    # path("recipe/<int:id>/like", views.recipe, name="like_recipe"),
+    path("recipe/<int:id>/like", views.like_recipe, name="like_recipe"),
     # path("recipe/<int:id>/edit", views.recipe, name="edit_recipe"),
+    # path("recipe/<int:id>/edit_image", views.recipe, name="edit_recipe"),
 ]

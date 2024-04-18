@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block body %}
+<div class="about-us-container">
+    <h1>About us</h1>
+    <div class="content">
+        <div class="sent">
+            <div class="bg-content">
+               Is your pantry overflowing with potential, but inspiration lacking? Let us be your guide to creating culinary masterpieces from everyday ingredients.           
+            </div>
+            <div class="sm-content">
+               Welcome to Simmer & Sizzle, the online kitchen where flavor ignites! But today, things are heating up in a different way.
+               It's a Simmer & Sizzle Showdown, and the battleground? Our very own recipe for the ultimate comfort food: mac and cheese!
+            </div>
+            <div class="icons-container">
+                <div class="social-media">
+                    <img src="{% static 'x-icon.png' %}">
+                    <a href="#">Simmer & Sizzle</a>
+                </div>
+                <div class="social-media">
+                    <img src="{% static 'fb-icon.png' %}">
+                    <a href="#">Simmer & Sizzle</a>
+                </div>
+                <div class="social-media">
+                    <img src="{% static 'ig-icon.png' %}">
+                    <a href="#">Simmer & Sizzle</a>
+                </div>
+                <div class="social-media">
+                    <img src="{% static 'yt-icon.png' %}">
+                    <a href="#">Simmer & Sizzle</a>
+                </div>
+            </div>
+        </div>
+        <div class="image-container">
+            <img src="{% static 'tablet-ss.png' %}" alt="Not for now" id="image">
+        </div>
+    </div>
+</div>
+{% endblock %}

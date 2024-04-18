@@ -10,7 +10,7 @@ body, .cool-form, .cool-button, .bland-button, .danger-button {
 }
 
 .main-view {
-    padding: 50px;
+    padding: 100px 50px;
 }
 
 .space {
@@ -244,6 +244,7 @@ a.norm-link:visited {
     margin: 0px 20px;
     height: 25px;
     transition: all 0.15s;
+    white-space: nowrap;
 }
 
 .navbar-link-item:not(.drop-down-button):hover {
@@ -441,8 +442,6 @@ a.norm-link:visited {
 }
 
 
-
-
 .category-header {
     margin: 0px 20px;
     font-size: 35px;
@@ -515,12 +514,11 @@ a.norm-link:visited {
 }
 
 .category-container {
-    margin: 40px 10px;
+    margin: 20px 10px;
 }
 
 .recipe-form-container {
     width: 60%;
-    margin-top: 50px;
 }
 
 .dynamic-form {

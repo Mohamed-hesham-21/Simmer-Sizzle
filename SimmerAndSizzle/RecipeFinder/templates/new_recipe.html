@@ -4,24 +4,25 @@
 {% block body %}
 <div class="recipe-form-container">
     <div class="row">
-        <input required name="name" type="text" class="cool-form space" placeholder="Name">
+        <input required name="name" type="text" class="cool-form space" placeholder="Name" value="{% block name %}{% endblock %}">
     </div>
     <div class="row">
-        <textarea name="description" rows="6" class="cool-form space" placeholder="Description"></textarea>
+        <textarea name="description" rows="6" class="cool-form space" placeholder="Description" value="{% block description %}{% endblock %}"></textarea>
     </div>
     <div class="row">
         <input name="image_url" type="url" class="cool-form space" placeholder="Image url">
     </div>
     <div class="row-sp">
-        <input name="prep_time" type="number" class="cool-form space" placeholder="Prep time (mins)">
-        <input name="cook_time" type="number" class="cool-form space" placeholder="Cook time (mins)">
-        <input name="servings" type="number" class="cool-form space" placeholder="Servings">
+        <input name="prep_time" type="number" class="cool-form space" placeholder="Prep time (mins)" value="{% block prepTime %}{% endblock %}">
+        <input name="cook_time" type="number" class="cool-form space" placeholder="Cook time (mins)" value="{% block cookTime %}{% endblock %}">
+        <input name="servings" type="number" class="cool-form space" placeholder="Servings" value="{% block servings %}{% endblock %}">
     </div>
 
     <div class="dynamic-form space">
         <div class="dynamic-form-header">Ingredients</div>
         <div class="row-sp">
             <ol id="ingredient-list" class="cool-ol recipe-form-list">
+                {% block ingredients %}{% endblock %}
             </ol>
             <div class="new-item-form-container space">
                 <div class="row-sp">
@@ -50,15 +51,17 @@
     <div class="dynamic-form space">
         <div class="dynamic-form-header">Steps</div>
         <ol id="step-list" class="cool-ol recipe-form-list">
-            
+            {% block steps %}{% endblock %}
         </ol>
         <div class="new-item-form-container">
             <textarea id="new-step-content" cols="30"  rows="5" class="cool-form space" placeholder="Write your step here..."></textarea>
             <button id="new-step-button" class="cool-button space">Add</button>
         </div>
         <div class="recipe-form-footer">
+            {% block buttons %}
             <button class="bland-button bg-fnt space">Reset</button>
-            <button class="cool-button bg-fnt space">Add recipe</button>
+            <button id="add-recipe-button" class="cool-button bg-fnt space">Add recipe</button>
+            {% endblock %}
         </div>
     </div>
 </div>
