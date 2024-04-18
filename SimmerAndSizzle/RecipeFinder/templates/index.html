@@ -13,13 +13,16 @@
         <div class="card-container">
             <div class="card">
                 <button class="card-fav-button"></button>
-                <img src="{% static 'food.jpg' %}" alt="simmer & sizzle">
+                <img src="{% if recipe.imageURL %} {{recipe.imageURL}} {% else %} {% static 'food.jpg' %}{% endif %}" alt="simmer & sizzle">
                 <div class="card-content">
-                    <h3>Recipe name</h3>
+                    <h3> {{ recipe.name }} </h3>
                     <p>
-                        Recipe description goes here...
+                        {{ recipe.description|slice:":100" }}
+                        {% if recipe.description|length > 100 %}...{% endif %}
                     </p>
-                    <button class="cool-button button-peach">Read More</button>
+                    <a href="{% url 'recipe' recipe.id %}">
+                        <button class="cool-button button-peach">Read More</button>
+                    </a>
                 </div>
             </div>
         </div>

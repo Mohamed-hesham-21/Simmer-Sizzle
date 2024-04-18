@@ -1,136 +1,116 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="shortcut icon" href="icon.png">
-        <link rel="stylesheet" href="styles.css">
-        <link rel="stylesheet" href="recipe.css">
-        <script src="script.js"></script>
-        <title>Simmer & Sizzle</title>
-    </head>
-    <body>
+{% extends "layout.html" %}
+{% load static %}
+        {% block body %}
         <div class="main-view">    
-            <div class="recipe-container">
-                <ul class="link-history">
-                    <li><a href="#" class="navbar-link-item norm-link">Cuisine</a></li>
-                    <li><a href="#" class="navbar-link-item norm-link">Course</a></li>
-                    <li><a href="#" class="navbar-link-item norm-link">Recipe</a></li>
-                </ul>
-                <div class="category-header">
-                    Recipe name
-                </div>
-                <div class="cool-text-container">
-                    This is where some info about the recipe will live
-                </div>
-                <div class="recipe-buttons-container">
-                    <button class="cool-button space">Save</button>
-                    <button class="bland-button">Edit</button>
-                </div>
-                <div class="recipe-img">
-                    <img src="food.jpg" width="750" height="400">
-                </div>
-            </div>
-            <div class="info-container">
-                <div class="row-sp">
-                    <div class="info-item time-item">
-                        <div class="info-title">Prep Time:</div>
-                        <div class="info-desc">30 mins</div>
+            <div class="recipe-view">
+                <div class="recipe-container">
+                    <ul class="link-history">
+                        <li><a href="#" class="navbar-link-item norm-link">{{ recipe.cuisine }}</a></li>
+                        <li><a href="#" class="navbar-link-item norm-link">{{ recipe.course }}</a></li>
+                        <li><a href="#" class="navbar-link-item norm-link">{{ recipe.name }}</a></li>
+                    </ul>
+                    <div class="category-header">
+                        {{ recipe.name }}
                     </div>
-                    <div class="info-item time-item">
-                        <div class="info-title">Cook Time:</div>
-                        <div class="info-desc">30 mins</div>
+                    <div class="cool-text-container">
+                        {{ recipe.description }}
+                    </div>
+                    <div class="recipe-buttons-container">
+                        <button class="cool-button space">Save</button>
+                        <button class="bland-button">Edit</button>
+                    </div>
+                    <div class="recipe-img">
+                        <img src="{% if recipe.imageURL %} {{recipe.imageURL}} {% else %} {% static 'food.jpg' %}{% endif %}" width="750" height="400">
                     </div>
                 </div>
-                <div class="row-sp">
-                    <div class="info-item time-item">
-                        <div class="info-title">Total Time:</div>
-                        <div class="info-desc">30 mins</div>
+                <div class="info-container">
+                    <div class="row-sp">
+                        <div class="info-item time-item">
+                            <div class="info-title">Prep Time:</div>
+                            <div class="info-desc">{{ recipe.prepTime }} mins</div>
+                        </div>
+                        <div class="info-item time-item">
+                            <div class="info-title">Cook Time:</div>
+                            <div class="info-desc">{{ recipe.cookTime }} mins</div>
+                        </div>
                     </div>
-                    <div class="info-item time-item">
-                        <div class="info-title">Servings:</div>
-                        <div class="info-desc">30</div>
+                    <div class="row-sp">
+                        <div class="info-item time-item">
+                            <div class="info-title">Total Time:</div>
+                            <div class="info-desc">{{ recipe.totalTime }} mins</div>
+                        </div>
+                        <div class="info-item time-item">
+                            <div class="info-title">Servings:</div>
+                            <div class="info-desc">{{ recipe.servings }} mins</div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="info-header">
+                        Nutrition Facts
+                    </div>
+                    <div class="row-sp">
+                        <div class="info-item">
+                            <div class="info-title">{{ recipe.calories }}</div>
+                            <div class="info-desc">Calories</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-title">{{ recipe.carbs }}g</div>
+                            <div class="info-desc">Carbs</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-title"> {{ recipe.fats }}g</div>
+                            <div class="info-desc">Fats</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-title"> {{ recipe.protein }}g </div>
+                            <div class="info-desc">Protein</div>
+                        </div>
                     </div>
                 </div>
-                <hr>
-                <div class="info-header">
-                    Nutrition Facts
+                <div class="recipe-info-container">
+                    <h1 class="info-heading">Ingredients</h1>
+                    <ul class="ingredient-list">
+                        {% for ingredient in ingredients %}
+                         <li><input type="checkbox" class="cool-form checkbox-bg"> <span>
+                            {{ ingredient.quantity }} {{ ingredient.ingredient.unit }} of {{ ingredient.ingredient.name }}
+                         </span></li>
+                        {% endfor %}
+                    </ul>
                 </div>
-                <div class="row-sp">
-                    <div class="info-item">
-                        <div class="info-title">145</div>
-                        <div class="info-desc">Calories</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-title">20g</div>
-                        <div class="info-desc">Carbs</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-title">144g</div>
-                        <div class="info-desc">Fats</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-title">68g</div>
-                        <div class="info-desc">Protein</div>
-                    </div>
+    
+                <div class="recipe-info-container">
+                    <h1 class="info-heading">Steps</h1>
+                    <ol class="cool-ol bouncy-list">
+                        {% for step in steps %}
+                        <li>
+                            {{ step.content }}
+                        </li>
+                        {% endfor %}
+                    </ol>
                 </div>
-            </div>
-            <div class="recipe-info-container">
-                <h1 class="info-heading">Ingredients</h1>
-                <ul class="ingredient-list">
-                    <li><input type="checkbox" class="cool-form checkbox-bg"> <span>Fist Ingredient</span></li>
-                    <li><input type="checkbox" class="cool-form checkbox-bg"> <span>Second Ingredient</span></li>
-                    <li><input type="checkbox" class="cool-form checkbox-bg"> <span>Third Ingredient</span></li>
-                    <li><input type="checkbox" class="cool-form checkbox-bg"> <span>Fourth Ingredient</span></li>
-                    <li><input type="checkbox" class="cool-form checkbox-bg"> <span>Fifth Ingredient</span></li>
-                    <li><input type="checkbox" class="cool-form checkbox-bg"> <span>Sixth Ingredient</span></li>
-                </ul>
-            </div>
-
-            <div class="recipe-info-container">
-                <h1 class="info-heading">Steps</h1>
-                <ol class="cool-ol bouncy-list">
-                    <li>Step 1 goes here</li>
-                    <li>Step 2 goes here</li>
-                    <li>Step 3 goes here</li>
-                    <li>Step 4 goes here</li>
-                    <li>Step 5 goes here</li>
-                    <li>Step 6 goes here</li>
-                    <li>Step 7 goes here</li>
-                    <li>Step 8 goes here</li>
-                </ol>
             </div>
             <div class="recommendations-container">
                 <div class="fancy-header">We think you'll also like</div>
                 <div class="card-view">
+                    {% for recipe in recipe.recommendations %}
                     <div class="card-container">
                         <div class="card">
                             <button class="card-fav-button"></button>
-                            <img src="food.jpg" alt="simmer & sizzle">
+                            <img src="{% static 'food.jpg' %}" alt="simmer & sizzle">
                             <div class="card-content">
-                                <h3>Recipe name</h3>
+                                <h3> {{ recipe.name }} </h3>
                                 <p>
-                                    Recipe description goes here...
+                                    {{ recipe.description|slice:":100" }}
+                                    {% if recipe.description.length > 100 %}
+                                    ...
+                                    {% endif %}
                                 </p>
                                 <button class="cool-button button-peach">Read More</button>
                             </div>
                         </div>
                     </div>
-                    <div class="card-container">
-                        <div class="card">
-                            <button class="card-fav-button"></button>
-                            <img src="food.jpg" alt="simmer & sizzle">
-                            <div class="card-content">
-                                <h3>Recipe name</h3>
-                                <p>
-                                    Recipe description goes here...
-                                </p>
-                                <button class="cool-button button-peach">Read More</button>
-                            </div>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
-    </body>
-</html>
+    {% endblock body %}
