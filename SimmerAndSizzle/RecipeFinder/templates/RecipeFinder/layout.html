@@ -5,41 +5,42 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" href="{% static 'RecipeFinder/icon.png' %}">
-        <link rel="stylesheet" href="{% static 'RecipeFinder/styles.ss' %}">
-        <link rel="stylesheet" href="{% static 'RecipeFinder/recipe.ss' %}">
+        <link rel="stylesheet" href="{% static 'RecipeFinder/styles.css' %}">
+        <link rel="stylesheet" href="{% static 'RecipeFinder/recipe.css' %}">
         <script src="{% static 'RecipeFinder/script.js' %}"></script>
         {% block scripts %}{% endblock %}
         <title>{% block title %} Simmer & Sizzle {% endblock %}</title>
+        {% csrf_token %}
     </head>
     <body>
         <nav class="navbar-container">
             <div class="navbar row">
-                <a href="index.html" class="navbar-logo">
+                <a href="{% url 'index' %}" class="navbar-logo">
                     <img src="{% static 'RecipeFinder/logo.png' %}" width="280">
                 </a>
                 <div class="navbar-items row">
-                    <a href="index.html" class="navbar-link-item norm-link">Recipes</a>
+                    <a href="{% url 'index' %}" class="navbar-link-item norm-link">Recipes</a>
                     <div class="drop-down-menu">
                         <a class="drop-down-button navbar-link-item norm-link">Cuisines</a>
                         <div id="cuisine-list" class="drop-down-options">
                         </div>
                     </div>
-                    <a href="about.html" class="navbar-link-item norm-link">About Us</a>
+                    <a href="{% url 'about' %}" class="navbar-link-item norm-link">About Us</a>
                     <div class="drop-down-menu">
-                        <a class="drop-down-button navbar-link-item norm-link">{ user.username }</a>
+                        {% if user.is_authenticated %}
+                        <a class="drop-down-button navbar-link-item norm-link">{{ user.username }}</a>
                         <div class="drop-down-options">
-                            {% if user.is_authenticated %}
                             {% if user.isAdmin %}
                             <a href="#" class="navbar-link-item norm-link">Your Recipes</a>
                             <a href="new_recipe.html" class="navbar-link-item norm-link">Add Recipe</a>
                             {% endif %}
                             <a href="favourites.html" class="navbar-link-item norm-link">Favourites</a>
-                            <a href="#" class="navbar-link-item norm-link">Logout</a>
-                            {% else %}
-                            <a href="register.html" class="navbar-link-item norm-link">Register</a>
-                            <a href="login.html" class="navbar-link-item norm-link">Login</a>
-                            {% endif %}
+                            <a href="{% url 'logout' %}" class="navbar-link-item norm-link">Logout</a>
                         </div>
+                        {% else %}
+                        <a href="{% url 'register' %}" class="navbar-link-item norm-link">Register</a>
+                        <a href="{% url 'login' %}" class="navbar-link-item norm-link">Login</a>
+                        {% endif %}
                     </div>
                 </div>
                 <form action="search.html" action="#" method="get">

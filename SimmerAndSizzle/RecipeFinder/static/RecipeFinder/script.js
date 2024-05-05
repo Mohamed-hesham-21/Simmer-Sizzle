@@ -1,18 +1,18 @@
-document.addEventListener("DOMContentLoaded", () => {
-    if (document.querySelector("button.card-fav-button")) {
-        document.querySelectorAll("button.card-fav-button").forEach((button) => {
-            button.onclick = () => toggleLike(button);
-        });
-    }
-    let container = document.querySelector("#cuisine-list");
-    const cuisines = cuisineNames();
-    let idx = 0;
-    cuisines.forEach(cuisine => {
-        container.innerHTML += `
-        <a href="cuisine.html?id=${idx++}" class="navbar-link-item norm-link"> ${cuisine} </a>
-        `;
-    });
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//     if (document.querySelector("button.card-fav-button")) {
+//         document.querySelectorAll("button.card-fav-button").forEach((button) => {
+//             button.onclick = () => toggleLike(button);
+//         });
+//     }
+//     let container = document.querySelector("#cuisine-list");
+//     const cuisines = cuisineNames();
+//     let idx = 0;
+//     cuisines.forEach(cuisine => {
+//         container.innerHTML += `
+//         <a href="cuisine.html?id=${idx++}" class="navbar-link-item norm-link"> ${cuisine} </a>
+//         `;
+//     });
+// });
 
 function Recipe(id, name, description, cuisine, course, prepTime, cookTime, servings, carbs, protein, fats, ingredients=[], steps=[]) {
     this.id = id;
@@ -436,7 +436,6 @@ function validateLogin(username, password) {
         return "Please provide your username";
     if (!password)
         return "Please provide your password";
-    // send login request to the server and process server-side validation
     return "";
 }
 
@@ -453,7 +452,6 @@ function validateRegister(username, email, password, confirmation) {
         return "Please rewrite your password";
     if (password != confirmation)
         return "Passwords don't match";
-    // send register request to the server and process server-side validation
     return "";
 }
 
@@ -467,6 +465,25 @@ function login() {
         displayErrorMessage(msg);
         return false;
     }
+    fetch('api/login', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+        }),
+    }).then(response => response.json()).then((response) => {
+        if ("error" in response) {
+            displayErrorMessage(response["error"]);
+        }
+        else {
+            window.location.href += "/..";
+        }
+    });
+    return false;
 }
 
 function register() {
@@ -475,13 +492,35 @@ function register() {
     let email = form.querySelector("[name=email]").value;
     let password = form.querySelector("[name=password]").value;
     let confirmation = form.querySelector("[name=confirmation]").value;
-    let isAdmin = form.querySelector("[name=is_admin]").value;
+    let isAdmin = (form.querySelector("[name=is_admin]").value == 'on' ? true : false);
 
     const msg = validateRegister(username, email, password, confirmation);
     if (msg) {
         displayErrorMessage(msg);
         return false;
     }
+    fetch('api/register', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            email: email,
+            password: password,
+            confirmation: confirmation,
+            isAdmin: isAdmin,
+        }),
+    }).then(response => response.json()).then((response) => {
+        if ("error" in response) {
+            displayErrorMessage(response["error"]);
+        }
+        else {
+            window.location.href += "/..";
+        }
+    });
+    return false;
 }
 
 function displayRecipe(recipe) {

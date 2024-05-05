@@ -1,51 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="shortcut icon" href="static/icon.png">
-        <link rel="stylesheet" href="static/styles.css">
-        <link rel="stylesheet" href="static/recipe.css">
-        <script src="static/script.js"></script>
-        <script src="static/index.js"></script>
-        <title>Simmer & Sizzle</title>
-    </head>
-    <body>
-        <nav class="navbar-container">
-            <div class="navbar row">
-                <a href="index.html" class="navbar-logo">
-                    <img src="static/logo.png" width="280">
-                </a>
-                <div class="navbar-items row">
-                    <a href="index.html" class="navbar-link-item norm-link">Recipes</a>
-                    <div class="drop-down-menu">
-                        <a class="drop-down-button navbar-link-item norm-link">Cuisines</a>
-                        <div id="cuisine-list" class="drop-down-options">
-                        </div>
-                    </div>
-                    <a href="about.html" class="navbar-link-item norm-link">About Us</a>
-                    <div class="drop-down-menu">
-                        <a class="drop-down-button navbar-link-item norm-link"> Username </a>
-                        <div class="drop-down-options">
-                            <a href="#" class="navbar-link-item norm-link">Your Recipes</a>
-                            <a href="new_recipe.html" class="navbar-link-item norm-link">Add Recipe</a>
-                            <a href="favourites.html" class="navbar-link-item norm-link">Favourites</a>
-                            <a href="#" class="navbar-link-item norm-link">Logout</a>
-                            <a href="register.html" class="navbar-link-item norm-link">Register</a>
-                            <a href="login.html" class="navbar-link-item norm-link">Login</a>
-                        </div>
-                    </div>
-                </div>
-                <form action="search.html" action="#" method="get">
-                    <div class="navbar-search row">
-                        <input name="q" type="text" class="cool-form form-peach" placeholder="Search">
-                        <button type="submit" class="cool-button button-peach"></button>
-                    </div>
-                </form>
-            </div>
-        </nav>
-        <div class="main-view">
-            <!-- Page contents go here -->
-        </div>
-    </body>
-</html>
+{% extends 'RecipeFinder/layout.html' %}
+{% load static %}
+{% block main_view %}
+    fml
+{% endblock %}

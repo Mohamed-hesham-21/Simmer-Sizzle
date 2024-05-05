@@ -1,85 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="shortcut icon" href="static/icon.png">
-        <link rel="stylesheet" href="static/styles.css">
-        <link rel="stylesheet" href="static/recipe.css">
-        <script src="static/script.js"></script>
-        <title>Simmer & Sizzle</title>
-    </head>
-    <body>
-        <nav class="navbar-container">
-            <div class="navbar row">
-                <a href="index.html" class="navbar-logo">
-                    <img src="static/logo.png" width="280">
-                </a>
-                <div class="navbar-items row">
-                    <a href="index.html" class="navbar-link-item norm-link">Recipes</a>
-                    <div class="drop-down-menu">
-                        <a class="drop-down-button navbar-link-item norm-link">Cuisines</a>
-                        <div id="cuisine-list" class="drop-down-options">
-                        </div>
-                    </div>
-                    <a href="about.html" class="navbar-link-item norm-link">About Us</a>
-                    <div class="drop-down-menu">
-                        <a class="drop-down-button navbar-link-item norm-link"> Username </a>
-                        <div class="drop-down-options">
-                            <a href="#" class="navbar-link-item norm-link">Your Recipes</a>
-                            <a href="new_recipe.html" class="navbar-link-item norm-link">Add Recipe</a>
-                            <a href="favourites.html" class="navbar-link-item norm-link">Favourites</a>
-                            <a href="#" class="navbar-link-item norm-link">Logout</a>
-                            <a href="register.html" class="navbar-link-item norm-link">Register</a>
-                            <a href="login.html" class="navbar-link-item norm-link">Login</a>
-                        </div>
-                    </div>
-                </div>
-                <form action="search.html" action="#" method="get">
-                    <div class="navbar-search row">
-                        <input name="q" type="text" class="cool-form form-peach" placeholder="Search">
-                        <button type="submit" class="cool-button button-peach"></button>
-                    </div>
-                </form>
+{% extends 'RecipeFinder/layout.html' %}
+{% load static %}
+{% block main_view %}
+<div class="about-us-container">
+    <h1>About us</h1>
+    <div class="content">
+        <div class="sent">
+            <div class="bg-content">
+               Is your pantry overflowing with potential, but inspiration lacking? Let us be your guide to creating culinary masterpieces from everyday ingredients.           
             </div>
-        </nav>
-        <div class="main-view">
-            <!-- Page contents go here -->
-            <div class="about-us-container">
-                <h1>About us</h1>
-                <div class="content">
-                    <div class="sent">
-                        <div class="bg-content">
-                           Is your pantry overflowing with potential, but inspiration lacking? Let us be your guide to creating culinary masterpieces from everyday ingredients.           
-                        </div>
-                        <div class="sm-content">
-                           Welcome to Simmer & Sizzle, the online kitchen where flavor ignites! But today, things are heating up in a different way.
-                           It's a Simmer & Sizzle Showdown, and the battleground? Our very own recipe for the ultimate comfort food: mac and cheese!
-                        </div>
-                        <div class="icons-container">
-                            <div class="social-media">
-                                <img src="static/x-icon.png">
-                                <a href="#">Simmer & Sizzle</a>
-                            </div>
-                            <div class="social-media">
-                                <img src="static/fb-icon.png">
-                                <a href="#">Simmer & Sizzle</a>
-                            </div>
-                            <div class="social-media">
-                                <img src="static/ig-icon.png">
-                                <a href="#">Simmer & Sizzle</a>
-                            </div>
-                            <div class="social-media">
-                                <img src="static/yt-icon.png">
-                                <a href="#">Simmer & Sizzle</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="image-container">
-                        <img src="static/tablet-ss.png" alt="Not for now" id="image">
-                    </div>
+            <div class="sm-content">
+               Welcome to Simmer & Sizzle, the online kitchen where flavor ignites! But today, things are heating up in a different way.
+               It's a Simmer & Sizzle Showdown, and the battleground? Our very own recipe for the ultimate comfort food: mac and cheese!
+            </div>
+            <div class="icons-container">
+                <div class="social-media">
+                    <img src="static/x-icon.png">
+                    <a href="#">Simmer & Sizzle</a>
+                </div>
+                <div class="social-media">
+                    <img src="static/fb-icon.png">
+                    <a href="#">Simmer & Sizzle</a>
+                </div>
+                <div class="social-media">
+                    <img src="static/ig-icon.png">
+                    <a href="#">Simmer & Sizzle</a>
+                </div>
+                <div class="social-media">
+                    <img src="static/yt-icon.png">
+                    <a href="#">Simmer & Sizzle</a>
                 </div>
             </div>
         </div>
-    </body>
-</html>
+        <div class="image-container">
+            <img src="static/tablet-ss.png" alt="Not for now" id="image">
+        </div>
+    </div>
+</div>
+{% endblock %}

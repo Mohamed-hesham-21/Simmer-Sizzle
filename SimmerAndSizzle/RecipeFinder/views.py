@@ -1,5 +1,5 @@
 import json
-from django.contrib.auth import authenticate, login, logout
+from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse
@@ -56,7 +56,7 @@ def checkRequest(request, auth=True, post=True, admin=False):
 def checkFormErrors(form):
     errors = []
     for field in form:
-        errors += field.errors()
+        errors += list(field.errors())
     return errors
 
 def checkKeys(dic, keys):
@@ -79,6 +79,9 @@ def getPage(recipes, pageNum):
     return pag.page(pageNum).object_list
 
 
+def index(request):
+    return render(request, "RecipeFinder/index.html")
+
 def login_view(request):
     return render(request, "RecipeFinder/login.html")
 
@@ -86,11 +89,11 @@ def register_view(request):
     return render(request, "RecipeFinder/register.html")
 
 def logout_view(request):
-    logout(request)
+    auth.logout(request)
     return HttpResponseRedirect(reverse("index"))
 
 def register(request):
-    response = checkRequest(request, False)
+    response = checkRequest(request, auth=False)
     if response is not None:
         return response
     data = json.loads(request.body)
@@ -108,12 +111,14 @@ def register(request):
 
     if models.User.objects.filter(username=data["username"]).exists():
         return JsonResponse({"error": "Username already taken."}, status=400)
-    user = userForm.save()
-    login(request, user)
+    user = userForm.save(commit=False)
+    user.set_password(userForm.cleaned_data["password"])
+    user.save()
+    auth.login(request, user)
     return JsonResponse({"success": "User authenticated successfully"}, status=200)
 
 def login(request):
-    response = checkRequest(request, False)
+    response = checkRequest(request, auth=False)
     if response is not None:
         return response
     data = json.loads(request.body)
@@ -122,10 +127,10 @@ def login(request):
         return JsonResponse({"error": f"Missing {missingKey}."}, status=400)
     username = data["username"]
     password = data["password"]
-    user = authenticate(request, username=username, password=password)
+    user = auth.authenticate(request, username=username, password=password)
     if user is None:
         return JsonResponse({"error": "Invalid username and/or password."}, status=401)
-    login(request, user)
+    auth.login(request, user)
     return JsonResponse({"success": "User authenticated successfully"}, status=200)
       
 
@@ -173,6 +178,48 @@ def add_recipe_view(request):
         "units": models.Unit.objects.all(),
     })
 
+def add_recipe(request):
+    response = checkRequest(request, admin=True)
+    if response is not None:
+        return response
+    data = json.loads(request.body)
+
+    missingKey = checkKeys(data["request"], NewRecipeForm.Meta.fields + ["ingredients", "steps"])
+    if missingKey is not None:
+        return JsonResponse({"error": f"Missing {missingKey}."}, status=400)
+
+    recipeForm = NewRecipeForm(data)
+    if not recipeForm.is_valid():
+        errors = checkFormErrors(recipeForm)
+        return JsonResponse({"error": errors[0]}, status=400)
+    recipe = recipeForm.save(commit=False)
+    recipe.author = request.user
+    recipe.save()
+    # for ing in data["ingredients"]:
+    #     try:
+    #         name = ing["name"].strip().lower().capitalize()
+    #         if Ingredient.objects.filter(name=name):
+    #             ingredient = Ingredient.objects.get(name=name)
+    #         else:
+    #             ingredient = Ingredient(name=name)
+    #             ingredient.save()        
+    #         quantity = ing["quantity"]
+    #         unit = Unit.objects.get(name=ing["unit"])
+    #         newIngredient = HasIngredient(recipe, ingredient, quantity, unit)
+    #         newIngredient.save()
+    #     except Exception:
+    #         recipe.delete()
+    #         return JsonResponse({"error": "Invalid ingredient"}, status=400)
+    
+    # for index, step in enumerate(data["steps"]):
+    #     try:
+    #         content = step["content"]
+    #         step = Step(recipe, content, index)
+    #         step.save()
+    #     except Exception:
+    #         recipe.delete()
+    #         return JsonResponse({"error": "Invalid step"}, status=400)
+    return JsonResponse({"recipe_id": recipe.id}, status=200)
 
 # @template
 # def edit_recipe_view(request, id):
@@ -336,53 +383,7 @@ def add_recipe_view(request):
 #     Like.objects.create(user=request.user, recipe=recipe)
 #     return JsonResponse({"success": "Recipe added to favourites successfully"}, status=200)
 
-# def add_recipe(request):
-#     if request.method != "POST":
-#         return JsonResponse({"error": "Invalid method. Only POST method is allowed."}, status=400)
-#     if not request.user.is_authenticated or not request.user.isAdmin:
-#         return JsonResponse({"error": "Authentication error"}, status=401)
-    
-#     data = json.loads(request.body)
 
-#     try:
-#         recipeForm = NewRecipeForm(data)
-        
-#     except Exception:
-#         return JsonResponse({"error": "some data missing"}, status=400)
-
-
-#     if not recipeForm.is_valid():
-#         errors = []
-#         for field in recipeForm:
-#             errors += field.errors()
-#         return JsonResponse({"error": error[0]}, status=400)
-    
-#     recipe.save()
-#     for ing in data["ingredients"]:
-#         try:
-#             name = ing["name"].strip().lower().capitalize()
-#             if Ingredient.objects.filter(name=name):
-#                 ingredient = Ingredient.objects.get(name=name)
-#             else:
-#                 ingredient = Ingredient(name=name)
-#                 ingredient.save()        
-#             quantity = ing["quantity"]
-#             unit = Unit.objects.get(name=ing["unit"])
-#             newIngredient = HasIngredient(recipe, ingredient, quantity, unit)
-#             newIngredient.save()
-#         except Exception:
-#             recipe.delete()
-#             return JsonResponse({"error": "Invalid ingredient"}, status=400)
-    
-#     for index, step in enumerate(data["steps"]):
-#         try:
-#             content = step["content"]
-#             step = Step(recipe, content, index)
-#             step.save()
-#         except Exception:
-#             recipe.delete()
-#             return JsonResponse({"error": "Invalid step"}, status=400)
-#     return JsonResponse({"recipe_id": recipe.id}, status=200)
 
 # def edit_recipe(request, id):
 #     if request.method != "POST":

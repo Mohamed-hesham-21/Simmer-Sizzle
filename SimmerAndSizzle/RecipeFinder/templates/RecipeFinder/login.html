@@ -1,4 +1,5 @@
 {% extends 'RecipeFinder/layout.html' %}
+{% load static %}
 {% block scripts %}
 <script src="{% static 'RecipeFinder/login.js' %}"></script>
 {% endblock %}
@@ -27,7 +28,7 @@
                 </div>
                 <div class="form-warning">
                     {% block form_warning %}
-                    Don't have an account yet? <a class="cool-link" href="register.html">Register</a>
+                    Don't have an account yet? <a class="cool-link" href="{% url 'register' %}">Register</a>
                     {% endblock %}
                 </div>
             </div>
