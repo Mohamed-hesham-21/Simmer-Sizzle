@@ -11,6 +11,7 @@ from . import models
 # Create your views here.
 
 CATEGORY_LIMIT = 10
+RECIPE_LIMIT = 10
 
 def template(fn):
     def wrapper(*args, **kwargs):
@@ -41,16 +42,15 @@ class NewUserForm(forms.ModelForm):
             "email",
             "password",
             "isAdmin",
-        )
+        ) 
 
-class 
-
-
-def checkRequest(request, auth=True, post=True):
+def checkRequest(request, auth=True, post=True, admin=False):
     if post and request.method != "POST":
         return JsonResponse({"error": "Only post method is allowed."}, status=400)
     if auth and not request.user.is_authenticated():
         return JsonResponse({"error": "Authentication error."}, status=401)
+    if admin and not request.user.isAdmin:
+        return JsonResponse({"error": "You're not an admin."}, status=403)
     return None
 
 def checkFormErrors(form):
@@ -63,6 +63,20 @@ def checkKeys(dic, keys):
     for key in keys:
         if dic.get(key) is None:
             return key
+
+def checkLikes(user, recipes):
+    if user.is_authenticated:
+        for recipe in recipes:
+            recipe.liked = recipe.checkLike(user)
+    return recipes; 
+
+def getPage(recipes, pageNum):
+    if not len(recipes):
+        return None
+    recipes = recipes.order_by('-dateAdded')
+    pag = Paginator(recipes, RECIPE_LIMIT)
+    assert pageNum <= pag.num_pages
+    return pag.page(pageNum).object_list
 
 
 def login_view(request):
@@ -113,13 +127,7 @@ def login(request):
         return JsonResponse({"error": "Invalid username and/or password."}, status=401)
     login(request, user)
     return JsonResponse({"success": "User authenticated successfully"}, status=200)
-
-
-# def checkLikes(user, recipes):
-#     if user.is_authenticated:
-#         for recipe in recipes:
-#             recipe.liked = recipe.checkLike(user)
-#     return recipes;        
+      
 
 # # @template
 # def index(request):
@@ -138,29 +146,45 @@ def login(request):
 #         "cuisines": Cuisine.objects.all(),
 #     })
 
-# def about(request):
-#     return render(request, "about.html", {
-#         "cuisines": Cuisine.objects.all(),
-#     })
+def about_view(request):
+    return render(request, "RecipeFinder/about.html")
+
+def favourites_view(request):
+    return render(request, "RecipeFinder/category.html")
+
+def favourites(request):
+    response = checkRequest(request, post=False)
+    if response is not None:
+        return response
+    data = json.loads(request.body)
+    recipes = models.Recipe.favourites(request.user)
+    pageNum = data["page"] if data.get("page") else 1
+    try:
+        recipes = getPage(recipes, pageNum)
+    except AssertionError:
+        return JsonResponse({"error": "Page specified is not available"}, status=400)
+    return JsonResponse({"recipes": recipes}, status=200)
+
+
+def add_recipe_view(request):
+    return render(request, "RecipeFinder/new_recipe.html", {
+        "cuisines": models.Cuisine.objects.all(),
+        "courses": models.Recipe.courses(),
+        "units": models.Unit.objects.all(),
+    })
+
 
 # @template
-# @login_required(login_url='login')
-# def favourites(request):
-#     assert request.user.is_authenticated
-#     likes = request.user.likes.all()
-#     recipes = []
-#     for like in likes:
-#         recipe = like.recipe
-#         recipe.liked = True
-#         recipes.append(recipe)
-#     category = {
-#         "name": "Favourites",
-#         "recipes": recipes,
-#     }
-#     return render(request, "category.html", {
-#         "category": category,
+# def edit_recipe_view(request, id):
+#     recipe = Recipe.objects.get(id=id)
+#     assert recipe.author == request.user
+#     return render(request, "new_recipe.html", {
+#         "recipe": recipe,
 #         "cuisines": Cuisine.objects.all(),
+#         "courses": Recipe.courses(),
+#         "units": Unit.objects.all(),
 #     })
+
 
 # def all_cuisines_view(request):
 #     categories = []
@@ -294,25 +318,7 @@ def login(request):
 #         "cuisines": Cuisine.objects.all(),
 #     })
 
-# @login_required(login_url='login')
-# def new_recipe_view(request):
-#     assert request.user.isAdmin
-#     return render(request, "new_recipe.html", {
-#         "cuisines": Cuisine.objects.all(),
-#         "courses": Recipe.courses(),
-#         "units": Unit.objects.all(),
-#     })
 
-# @template
-# def edit_recipe_view(request, id):
-#     recipe = Recipe.objects.get(id=id)
-#     assert recipe.author == request.user
-#     return render(request, "new_recipe.html", {
-#         "recipe": recipe,
-#         "cuisines": Cuisine.objects.all(),
-#         "courses": Recipe.courses(),
-#         "units": Unit.objects.all(),
-#     })
 
 # def like_recipe(request, id):
 #     if request.method != "POST":

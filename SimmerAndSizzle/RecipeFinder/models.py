@@ -42,15 +42,19 @@ class Recipe(models.Model):
     prepTime = models.IntegerField()
     cookTime = models.IntegerField()
     servings = models.IntegerField()
-    carbs = models.IntegerField()
-    protein = models.IntegerField()
-    fats = models.IntegerField()
+    carbs = models.IntegerField(null=True)
+    protein = models.IntegerField(null=True)
+    fats = models.IntegerField(null=True)
     image = models.ImageField(null=True, upload_to="images/")
+    dateAdded = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
 
     @classmethod
     def trending(cls):
         recipes = list(Recipe.objects.all())
-        recipes.sort(key=lambda recipe: recipe.likesCount() / recipe.viewsCount())
+        recipes.sort(key=lambda recipe: recipe.likesCount() / recipe.viewsCount(), reverse=True)
         return recipes
     
     @classmethod
@@ -60,11 +64,21 @@ class Recipe(models.Model):
             coursesList.append(course[0])
         return coursesList
 
-    def __str__(self):
-        return self.name
+    @classmethod
+    def favourites(cls, user):
+        recipes = []
+        for recipe in cls.objects.all():
+            if recipe.checkLike(user):
+                recipes.append(recipe)
+        return recipes
 
     def totalTime(self):
         return self.prepTime + self.cookTime
+    
+    def calories(self):
+        if not self.carbs or not self.fats or not self.protein:
+            return 0
+        return 4 * self.carbs + 4 * self.protein + 9 * self.fats
 
     def recommendations(self):
         return Recipe.objects.filter(cuisine=self.cuisine).exclude(id=self.id).all()
@@ -73,8 +87,14 @@ class Recipe(models.Model):
         return True if user.likes.filter(recipe=self) else False
 
     def addView(self, user):
-        if not self.views.filter(user=user):
-            View.create(user, self)
+        if self.views.filter(user=user) is None:
+            View.objects.create(user, self)
+
+    def like(self, user):
+        if self.likes.filter(user) is None:
+            Like.objects.create(user, self)
+        else:
+            self.likes.get(user=user).delete()
 
     def viewsCount(self):
         return self.views.count()
@@ -112,7 +132,9 @@ class HasIngredient(models.Model):
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes")
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="likes")
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 class View(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="views")
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="views")
+    timestamp = models.DateTimeField(auto_now_add=True)

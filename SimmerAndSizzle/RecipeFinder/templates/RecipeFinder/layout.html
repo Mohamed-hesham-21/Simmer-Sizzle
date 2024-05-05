@@ -4,10 +4,10 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="shortcut icon" href="static/icon.png">
-        <link rel="stylesheet" href="static/styles.css">
-        <link rel="stylesheet" href="static/recipe.css">
-        <script src="static/script.js"></script>
+        <link rel="shortcut icon" href="{% static 'RecipeFinder/icon.png' %}">
+        <link rel="stylesheet" href="{% static 'RecipeFinder/styles.ss' %}">
+        <link rel="stylesheet" href="{% static 'RecipeFinder/recipe.ss' %}">
+        <script src="{% static 'RecipeFinder/script.js' %}"></script>
         {% block scripts %}{% endblock %}
         <title>{% block title %} Simmer & Sizzle {% endblock %}</title>
     </head>
@@ -15,7 +15,7 @@
         <nav class="navbar-container">
             <div class="navbar row">
                 <a href="index.html" class="navbar-logo">
-                    <img src="static/logo.png" width="280">
+                    <img src="{% static 'RecipeFinder/logo.png' %}" width="280">
                 </a>
                 <div class="navbar-items row">
                     <a href="index.html" class="navbar-link-item norm-link">Recipes</a>
