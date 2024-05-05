@@ -10,7 +10,6 @@ urlpatterns = [
 
     path("about", views.about_view, name="about"),
     path("favourites", views.favourites_view, name="favourites"),
-
     path("add_recipe", views.add_recipe_view, name="add_recipe"),
 
     # path("search", views.search, name="search"),
@@ -28,7 +27,10 @@ urlpatterns = [
     path("api/login", views.login),
     path("api/register", views.register),
     path("api/favourites", views.favourites),
-    # path("api/add_recipe", views.add_recipe),
+    path("api/add_recipe", views.add_recipe),
+    # path("api/cuisines", views.cuisines),
+    # path("api/courses", views.cuisines),
+    # path("api/units", views.units),
     # path("api/recipes", views.recipes),
     # path("api/recipes/<int:id>/recommendations", views.like_recipe),
     # path("api/recipes/<int:id>/like", views.like_recipe),

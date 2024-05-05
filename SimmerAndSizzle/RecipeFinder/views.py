@@ -32,6 +32,9 @@ class NewRecipeForm(forms.ModelForm):
             "prepTime", 
             "cookTime", 
             "servings",
+            "carbs",
+            "fats",
+            "protein",
             )
 
 class NewUserForm(forms.ModelForm):
@@ -44,10 +47,33 @@ class NewUserForm(forms.ModelForm):
             "isAdmin",
         ) 
 
+class NewIngredientForm(forms.ModelForm):
+    class Meta:
+        model = models.Ingredient
+        fields = (
+            "name",
+        )
+
+class NewStepForm(forms.ModelForm):
+    class Meta:
+        model = models.Step
+        fields = (
+            "name",
+        )
+
+class NewIngredientConForm(forms.ModelForm):
+    class Meta:
+        model = models.HasIngredient
+        fields = (
+            "ingredient",
+            "quantity",
+            "unit",
+        )
+
 def checkRequest(request, auth=True, post=True, admin=False):
     if post and request.method != "POST":
         return JsonResponse({"error": "Only post method is allowed."}, status=400)
-    if auth and not request.user.is_authenticated():
+    if auth and not request.user.is_authenticated:
         return JsonResponse({"error": "Authentication error."}, status=401)
     if admin and not request.user.isAdmin:
         return JsonResponse({"error": "You're not an admin."}, status=403)
@@ -56,7 +82,8 @@ def checkRequest(request, auth=True, post=True, admin=False):
 def checkFormErrors(form):
     errors = []
     for field in form:
-        errors += list(field.errors())
+        for error in field.errors:
+            errors.append(f"{field.label}: {error}")
     return errors
 
 def checkKeys(dic, keys):
@@ -78,6 +105,14 @@ def getPage(recipes, pageNum):
     assert pageNum <= pag.num_pages
     return pag.page(pageNum).object_list
 
+def cuisines(request):
+    return JsonResponse({"cuisines": models.Cuisine.objects.all()})
+
+def units(request):
+    return JsonResponse({"units": models.Unit.objects.all()})
+
+def courses(request):
+    return JsonResponse({"courses": models.Recipe.courses()})
 
 def index(request):
     return render(request, "RecipeFinder/index.html")
@@ -183,33 +218,43 @@ def add_recipe(request):
     if response is not None:
         return response
     data = json.loads(request.body)
-
-    missingKey = checkKeys(data["request"], NewRecipeForm.Meta.fields + ["ingredients", "steps"])
+    if not data.get("recipe"):
+        return JsonResponse({"error": "Missing recipe."}, status=400)
+    missingKey = checkKeys(data["recipe"], list(NewRecipeForm.Meta.fields) + ["ingredients", "steps"])
     if missingKey is not None:
         return JsonResponse({"error": f"Missing {missingKey}."}, status=400)
 
-    recipeForm = NewRecipeForm(data)
+    recipeForm = NewRecipeForm(data["recipe"])
     if not recipeForm.is_valid():
         errors = checkFormErrors(recipeForm)
         return JsonResponse({"error": errors[0]}, status=400)
     recipe = recipeForm.save(commit=False)
     recipe.author = request.user
-    recipe.save()
-    # for ing in data["ingredients"]:
-    #     try:
-    #         name = ing["name"].strip().lower().capitalize()
-    #         if Ingredient.objects.filter(name=name):
-    #             ingredient = Ingredient.objects.get(name=name)
-    #         else:
-    #             ingredient = Ingredient(name=name)
-    #             ingredient.save()        
-    #         quantity = ing["quantity"]
-    #         unit = Unit.objects.get(name=ing["unit"])
-    #         newIngredient = HasIngredient(recipe, ingredient, quantity, unit)
-    #         newIngredient.save()
-    #     except Exception:
-    #         recipe.delete()
-    #         return JsonResponse({"error": "Invalid ingredient"}, status=400)
+    ingredientList = []
+    for ing in data["recipe"]["ingredients"]:
+        name = ing["name"].strip().lower().capitalize()
+        tempForm = NewIngredientForm(name)
+        if not tempForm.is_valid():
+            return JsonResponse({"error": "Ingrdient name is too long"}, status=400)
+        
+        ingredientList.append(name)
+    
+
+    for ing in data["ingredients"]:
+        try:
+            name = ing["name"].strip().lower().capitalize()
+            if models.Ingredient.objects.filter(name=name) is not None:
+                ingredient = models.Ingredient.objects.get(name=name)
+            else:
+                ingredient = models.Ingredient(name=name)
+                ingredient.save()
+            quantity = ing["quantity"]
+            unit = Unit.objects.get(name=ing["unit"])
+            newIngredient = HasIngredient(recipe, ingredient, quantity, unit)
+            newIngredient.save()
+        except Exception:
+            recipe.delete()
+            return JsonResponse({"error": "Invalid ingredient"}, status=400)
     
     # for index, step in enumerate(data["steps"]):
     #     try:
@@ -219,6 +264,7 @@ def add_recipe(request):
     #     except Exception:
     #         recipe.delete()
     #         return JsonResponse({"error": "Invalid step"}, status=400)
+    recipe.save()
     return JsonResponse({"recipe_id": recipe.id}, status=200)
 
 # @template

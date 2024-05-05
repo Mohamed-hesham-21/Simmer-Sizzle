@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    setup();
-    setupRecipeForm();
+    // setupRecipeForm();
     document.querySelector("#new-step-button").onclick = addStep;
     document.querySelector("#new-ingredient-button").onclick = addIngredient;
     

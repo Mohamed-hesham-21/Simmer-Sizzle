@@ -14,8 +14,7 @@
 //     });
 // });
 
-function Recipe(id, name, description, cuisine, course, prepTime, cookTime, servings, carbs, protein, fats, ingredients=[], steps=[]) {
-    this.id = id;
+function Recipe(name, description, cuisine, course, prepTime, cookTime, servings, carbs, protein, fats, ingredients=[], steps=[]) {
     this.name = name;
     this.description = description;
     this.cuisine = cuisine;
@@ -257,39 +256,56 @@ function getRecipeFromForm() {
         const content = item.innerText;
         steps.push(content);
     }
-    let recipes = JSON.parse(localStorage.getItem("recipes"));
-    let recipe = new Recipe(recipes.length, name, description, cuisine, course, prepTime, cookTime, servings, carbs, protein, fats, ingredients, steps);
+    let recipe = new Recipe(name, description, cuisine, course, prepTime, cookTime, servings, carbs, protein, fats, ingredients, steps);
     return recipe;
 }
 
 function addRecipe() {
     try {
-        let recipes = JSON.parse(localStorage.getItem("recipes"));
         let recipe = getRecipeFromForm();
-        let msg = validateRecipe(recipe);
-        if (msg) {
-            displayErrorMessage(msg);
-            return false;
-        }
+        // let msg = validateRecipe(recipe);
+        // if (msg) {
+        //     displayErrorMessage(msg);
+        //     return false;
+        // }
         
-        let image;
-        let getImage = document.querySelector("#input-image");
-        const reader = new FileReader();
-        try {
-            reader.readAsDataURL(getImage.files[0]);
-            reader.addEventListener("load" , () => {
-            image = reader.result;
-            recipe.image = image;
-            recipes.push(recipe);
-            localStorage.setItem("recipes", JSON.stringify(recipes));
-            window.location.href += `/../recipe.html?id=${recipe.id}`;
+        // let image;
+        // let getImage = document.querySelector("#input-image");
+        // const reader = new FileReader();
+        // try {
+        //     reader.readAsDataURL(getImage.files[0]);
+        //     reader.addEventListener("load" , () => {
+        //     image = reader.result;
+        //     recipe.image = image;
+        //     recipes.push(recipe);
+        //     localStorage.setItem("recipes", JSON.stringify(recipes));
+        //     window.location.href += `/../recipe.html?id=${recipe.id}`;
+        // });
+        // }
+        // catch(err) {
+        //     recipes.push(recipe);
+        //     localStorage.setItem("recipes", JSON.stringify(recipes));
+        //     window.location.href += `/../recipe.html?id=${recipe.id}`;
+        // }
+        console.log(recipe)
+        fetch('api/add_recipe', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                recipe: recipe
+            }),
+        }).then(response => response.json()).then((response) => {
+            if ("error" in response) {
+                displayErrorMessage(response["error"]);
+            }
+            else {
+                window.location.href += "/..";
+            }
         });
-        }
-        catch(err) {
-            recipes.push(recipe);
-            localStorage.setItem("recipes", JSON.stringify(recipes));
-            window.location.href += `/../recipe.html?id=${recipe.id}`;
-        }
+        return false;
     }
     catch(err) {
         displayErrorMessage(err.message);

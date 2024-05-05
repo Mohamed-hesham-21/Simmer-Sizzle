@@ -1,6 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+
+alpha = RegexValidator(r'^[a-zA-Z]*$', "Only alphabetic letters are allowed.")
+alphanumeric = RegexValidator(r'^[0-9a-zA-Z]*$', "Only alphanumeric characters are allowed.")
+
+def non_negative(value, name):
+    if value < 0:
+        raise ValidationError(f"{name} can't be negative")
 
 # Create your models here.
 class User(AbstractUser):
@@ -8,7 +16,7 @@ class User(AbstractUser):
 
 
 class Cuisine(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, validators=[alpha])
     info = models.TextField(max_length=1000)
 
     def __str__(self):
@@ -18,14 +26,15 @@ class Cuisine(models.Model):
         return self.name
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=100)
-    carbs = models.FloatField(null=True)
-    protein = models.FloatField(null=True)
-    fats = models.FloatField(null=True)
+    name = models.CharField(max_length=100, validators=[alpha])
+    dateAdded = models.DateTimeField(auto_now_add=True)
 
 class Unit(models.Model):
-    name = models.CharField(max_length=25, unique=True)
-    conversion = models.FloatField(null=True)
+    name = models.CharField(max_length=25, unique=True, validators=[alpha])
+    conversion = models.FloatField(null=True, validators=[non_negative])
+
+    def __str__(self):
+        return self.name
 
 def adminValidator(userID):
     user = User.objects.get(id=userID)
@@ -35,16 +44,16 @@ def adminValidator(userID):
 class Recipe(models.Model):
     courses_pairs = [("Appetizers", "Appetizers"), ("Main Course", "Main Course"), ("Dessert", "Dessert")]
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="recipes", validators=[adminValidator])
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, validators=[alpha])
     description = models.TextField(max_length=1000)
     course = models.CharField(max_length=25, choices=courses_pairs)
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE, related_name="recipes")
-    prepTime = models.IntegerField()
-    cookTime = models.IntegerField()
-    servings = models.IntegerField()
-    carbs = models.IntegerField(null=True)
-    protein = models.IntegerField(null=True)
-    fats = models.IntegerField(null=True)
+    prepTime = models.IntegerField(validators=[non_negative])
+    cookTime = models.IntegerField(validators=[non_negative])
+    servings = models.IntegerField(validators=[non_negative])
+    carbs = models.IntegerField(null=True, validators=[non_negative])
+    protein = models.IntegerField(null=True, validators=[non_negative])
+    fats = models.IntegerField(null=True, validators=[non_negative])
     image = models.ImageField(null=True, upload_to="images/")
     dateAdded = models.DateTimeField(auto_now_add=True)
 

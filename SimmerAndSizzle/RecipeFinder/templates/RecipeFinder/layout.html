@@ -32,7 +32,7 @@
                         <div class="drop-down-options">
                             {% if user.isAdmin %}
                             <a href="#" class="navbar-link-item norm-link">Your Recipes</a>
-                            <a href="new_recipe.html" class="navbar-link-item norm-link">Add Recipe</a>
+                            <a href="{% url 'add_recipe' %}" class="navbar-link-item norm-link">Add Recipe</a>
                             {% endif %}
                             <a href="favourites.html" class="navbar-link-item norm-link">Favourites</a>
                             <a href="{% url 'logout' %}" class="navbar-link-item norm-link">Logout</a>
