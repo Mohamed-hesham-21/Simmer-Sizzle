@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home Page</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="static/styles.css">
+  <link rel="stylesheet" href="static/recipe.css">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Permanent+Marker&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      background-image: url(static/sizzling.jpg);
+      background-size: cover;
+      background-color: black;
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      background: rgb(0, 0, 0, 0.8);
+    }
+
+    .burger-image-container {
+      width: 300px;
+      height: 300px;
+      position: relative;
+    }
+
+    .image {
+      width: 100%;
+      height: auto;
+      position: absolute;
+      right: 0;
+      transition: transform 0.5s ease;
+      margin-right: 350px;
+    }
+
+    .burger-image-container:hover .image {
+      transform: rotateY(180deg);
+    }
+
+    .text {
+      font-family: "Acme", sans-serif;
+      text-align: center; 
+      margin-top: 20px;
+      margin-left: 50px;
+      font-weight: bold;
+      font-size: 50px;
+      color: wheat;
+    }
+
+    .text p {
+      font-size: 40px;
+    }
+
+    .sizzle {
+      font-family: "Pacifico", cursive;
+      font-style: normal;
+      color: orangered;
+      font-weight: bold;
+      font-size: 55px;
+    }
+
+    .signup-button, .browse-button {
+      background-color: orangered;
+      color: white;
+      padding: 15px 25px;
+      border: none;
+      font-size: 24px;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .signup-button:hover, .browse-button:hover {
+      transform: scale(1.1);
+    }
+
+    .button-container {
+      display: flex;
+      align-items: center;
+      justify-content: center; 
+      margin-top: 20px; 
+    }
+
+    .signup-button {
+      margin-right: 35px;
+    }
+
+    .browse-button {
+      background-color: grey;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar-container">
+    <div class="navbar row">
+        <a href="index.html" class="navbar-logo">
+            <img src="static/logo.png" width="280">
+        </a>
+        <div class="navbar-items row">
+            <a href="index.html" class="navbar-link-item norm-link">Recipes</a>
+            <div class="drop-down-menu">
+                <a class="drop-down-button navbar-link-item norm-link">Cuisines</a>
+                <div class="drop-down-options">
+                    <!-- <a href="#" class="navbar-link-item norm-link">Egyptian</a>
+                    <a href="#" class="navbar-link-item norm-link">Italian</a>
+                    <a href="#" class="navbar-link-item norm-link">Chinese</a>
+                    <a href="#" class="navbar-link-item norm-link">Mexican</a>
+                    <a href="#" class="navbar-link-item norm-link">Indian</a>
+                    <a href="#" class="navbar-link-item norm-link">Japanese</a>
+                    <a href="#" class="navbar-link-item norm-link">French</a>
+                    <a href="#" class="navbar-link-item norm-link">Canadian</a> -->
+                </div>
+            </div>
+            <a href="about.html" class="navbar-link-item norm-link">About Us</a>
+            <div class="drop-down-menu">
+                <a class="drop-down-button navbar-link-item norm-link"> Username </a>
+                <div class="drop-down-options">
+                    <a href="#" class="navbar-link-item norm-link">Your Recipes</a>
+                    <a href="new_recipe.html" class="navbar-link-item norm-link">Add Recipe</a>
+                    <a href="favourites.html" class="navbar-link-item norm-link">Favourites</a>
+                    <a href="#" class="navbar-link-item norm-link">Logout</a>
+                    <a href="register.html" class="navbar-link-item norm-link">Register</a>
+                    <a href="login.html" class="navbar-link-item norm-link">Login</a>
+                </div>
+            </div>
+        </div>
+        <form method="get">
+            <div class="navbar-search row">
+                <input name="q" type="text" class="cool-form form-peach" placeholder="Search">
+                <button type="submit" class="cool-button button-peach"></button>
+            </div>
+        </form>
+    </div>
+</nav>
+  <div class="container">
+    <div class="text">
+      Welcome to <span class="sizzle">Simmer and Sizzle</span>
+      <p>Let's Get Started...</p>
+      <div class="button-container">
+        <button class="signup-button">Sign Up</button>
+        <button class="browse-button">Browse Recipes</button>
+      </div>
+    </div>
+    <div class="burger-image-container">
+      <img src="static/burger333.png" alt="Burger Image" class="image">
+    </div>
+  </div>
+</body>
+</html>
