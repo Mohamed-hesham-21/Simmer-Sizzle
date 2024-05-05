@@ -2,16 +2,32 @@
 {% load static %}
 
 {% block body %}
+{% if linkHistory %}
+    <ul class="link-history">
+        {% for link in linkHistory %}
+        <li><a href="{{ link.ref }}" class="navbar-link-item norm-link">{{ link.name }}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}
+<div class="category-header">{{ header }}</div>
+{% if info %}
+<div class="cool-text-container">
+    {{ info }}
+</div>
+{% endif %}
 {% for category in categories %}
 <div class="category-container">
     <div class="row">
         <div class="fancy-header">{{ category.name }}</div> 
-        <button class="bland-button space">See more</button>
+        <a href="{{ category.link }}">
+            <button class="bland-button space">See more</button>
+        </a>
     </div>
     <div class="card-view">
         {% for recipe in category.recipes %}
         <div class="card-container">
             <div class="card">
+<<<<<<< HEAD
                 <button class="card-fav-button"></button>
                 <img src="
                 {% if recipe.image.url %}
@@ -19,11 +35,14 @@
                 {% else %}
                 {% static 'food.jpg' %}
                 {% endif %}" alt="simmer & sizzle">
+=======
+                <button data-id="{{ recipe.id }}" class="card-fav-button {% if recipe.liked %} card-fav-button-filled {% endif %}"></button>
+                <img src="{% if recipe.imageURL %} {{recipe.imageURL}} {% else %} {% static 'food.jpg' %}{% endif %}" alt="simmer & sizzle">
+>>>>>>> 66465947f414037bce5b15d8d5a85aa05c0ed451
                 <div class="card-content">
                     <h3> {{ recipe.name }} </h3>
                     <p>
-                        {{ recipe.description|slice:":100" }}
-                        {% if recipe.description|length > 100 %}...{% endif %}
+                        {{ recipe.description|slice:":100" }}{% if recipe.description|length > 100 %}...{% endif %}
                     </p>
                     <a href="{% url 'recipe' recipe.id %}">
                         <button class="cool-button button-peach">Read More</button>

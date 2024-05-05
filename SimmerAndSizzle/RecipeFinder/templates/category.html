@@ -1,159 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="shortcut icon" href="icon.png">
-        <link rel="stylesheet" href="styles.css">
-        <link rel="stylesheet" href="recipe.css">
-        <script src="script.js"></script>
-        <title>Simmer & Sizzle</title>
-    </head>
-    <body>
-        <div class="main-view">
-            <div class="category-container">
-                <div class="row">
-                    <div class="fancy-header">Category name</div> 
-                    <button class="bland-button space">See more</button>
-                </div>
-                <div class="card-view">
-                    <div class="card-container">
-                        <div class="card">
-                            <button class="card-fav-button"></button>
-                            <img src="food.jpg" alt="simmer & sizzle">
-                            <div class="card-content">
-                                <h3>Recipe name</h3>
-                                <p>
-                                    Recipe description goes here...
-                                </p>
-                                <button class="cool-button button-peach">Read More</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-container">
-                        <div class="card">
-                            <button class="card-fav-button"></button>
-                            <img src="food.jpg" alt="simmer & sizzle">
-                            <div class="card-content">
-                                <h3>Recipe name</h3>
-                                <p>
-                                    Recipe description goes here...
-                                </p>
-                                <button class="cool-button button-peach">Read More</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-container">
-                        <div class="card">
-                            <button class="card-fav-button"></button>
-                            <img src="food.jpg" alt="simmer & sizzle">
-                            <div class="card-content">
-                                <h3>Recipe name</h3>
-                                <p>
-                                    Recipe description goes here...
-                                </p>
-                                <button class="cool-button button-peach">Read More</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+{% extends "layout.html" %}
+{% load static %}
 
-            <div class="category-container">
-                <div class="row">
-                    <div class="fancy-header">Category name</div> 
-                    <button class="bland-button space">See more</button>
-                </div>
-                <div class="card-view">
-                    <div class="card-container">
-                        <div class="card">
-                            <button class="card-fav-button"></button>
-                            <img src="food.jpg" alt="simmer & sizzle">
-                            <div class="card-content">
-                                <h3>Recipe name</h3>
-                                <p>
-                                    Recipe description goes here...
-                                </p>
-                                <button class="cool-button button-peach">Read More</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-container">
-                        <div class="card">
-                            <button class="card-fav-button"></button>
-                            <img src="food.jpg" alt="simmer & sizzle">
-                            <div class="card-content">
-                                <h3>Recipe name</h3>
-                                <p>
-                                    Recipe description goes here...
-                                </p>
-                                <button class="cool-button button-peach">Read More</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-container">
-                        <div class="card">
-                            <button class="card-fav-button"></button>
-                            <img src="food.jpg" alt="simmer & sizzle">
-                            <div class="card-content">
-                                <h3>Recipe name</h3>
-                                <p>
-                                    Recipe description goes here...
-                                </p>
-                                <button class="cool-button button-peach">Read More</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="category-container">
-                <div class="row">
-                    <div class="fancy-header">Category name</div> 
-                    <button class="bland-button space">See more</button>
-                </div>
-                <div class="card-view">
-                    <div class="card-container">
-                        <div class="card">
-                            <button class="card-fav-button"></button>
-                            <img src="food.jpg" alt="simmer & sizzle">
-                            <div class="card-content">
-                                <h3>Recipe name</h3>
-                                <p>
-                                    Recipe description goes here...
-                                </p>
-                                <button class="cool-button button-peach">Read More</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-container">
-                        <div class="card">
-                            <button class="card-fav-button"></button>
-                            <img src="food.jpg" alt="simmer & sizzle">
-                            <div class="card-content">
-                                <h3>Recipe name</h3>
-                                <p>
-                                    Recipe description goes here...
-                                </p>
-                                <button class="cool-button button-peach">Read More</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-container">
-                        <div class="card">
-                            <button class="card-fav-button"></button>
-                            <img src="food.jpg" alt="simmer & sizzle">
-                            <div class="card-content">
-                                <h3>Recipe name</h3>
-                                <p>
-                                    Recipe description goes here...
-                                </p>
-                                <button class="cool-button button-peach">Read More</button>
-                            </div>
-                        </div>
-                    </div>
+{% block body %}
+<div class="category-container">
+    {% if linkHistory %}
+    <ul class="link-history">
+        {% for link in linkHistory %}
+        <li><a href="{{ link.ref }}" class="navbar-link-item norm-link">{{ link.name }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="fancy-header">{{ category.name }}</div>
+    {% if info %}
+    <div class="cool-text-container">
+        {{ info }}
+    </div>
+    {% endif %}
+    <div class="card-view">
+        {% for recipe in category.recipes %}
+        <div class="card-container">
+            <div class="card">
+                <button data-id="{{ recipe.id }}" class="card-fav-button {% if recipe.liked %} card-fav-button-filled {% endif %}"></button>
+                <img src="{% if recipe.imageURL %} {{recipe.imageURL}} {% else %} {% static 'food.jpg' %}{% endif %}" alt="simmer & sizzle">
+                <div class="card-content">
+                    <h3> {{ recipe.name }} </h3>
+                    <p>
+                        {{ recipe.description|slice:":100" }}
+                        {% if recipe.description|length > 100 %}...{% endif %}
+                    </p>
+                    <a href="{% url 'recipe' recipe.id %}">
+                        <button class="cool-button button-peach">Read More</button>
+                    </a>
                 </div>
             </div>
         </div>
-    </body>
-</html>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

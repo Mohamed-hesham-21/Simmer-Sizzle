@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("button.card-fav-button").forEach((button) => {
         button.onclick = () => toggleLike(button);
     });
+<<<<<<< HEAD
     document.querySelector("#new-step-button").onclick = addStep;
     document.querySelector("#new-ingredient-button").onclick = addIngredient;
     
@@ -44,8 +45,37 @@ function uploadImage() {
     .then(data => console.log(data))
     .catch(error => console.error('Error:', error));
 }
+=======
+    if (document.querySelector("#new-step-button"))
+    {
+        document.querySelector("#new-step-button").onclick = addStep;
+        document.querySelector("#new-ingredient-button").onclick = addIngredient;
+        
+        document.querySelector("#ingredient-list").querySelectorAll("li").forEach(item => {
+            item.querySelector("button").onclick = () => item.remove();
+        });
+        document.querySelector("#step-list").querySelectorAll("li").forEach(item => {
+            item.querySelector("button").onclick = () => item.remove();
+        });
+        document.querySelector("#add-recipe-button").onclick = addRecipe;
+    }
+    if (document.querySelector("#recipe-save-button")) {
+        let button = document.querySelector("#recipe-save-button")
+        button.onclick = () => toggleSave(button);
+    }
+>>>>>>> 66465947f414037bce5b15d8d5a85aa05c0ed451
 })
 
+function toggleSave(button) {
+    button.innerHTML = (button.innerHTML == "Save" ? "Unsave" : "Save");
+    fetch(`/recipes/${button.dataset.id}/like`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    });
+}
 
 function toggleLike(button) {
     if (button.classList.contains("card-fav-button-filled")) {
@@ -54,6 +84,13 @@ function toggleLike(button) {
     else {
         button.classList.add("card-fav-button-filled");
     }
+    fetch(`/recipes/${button.dataset.id}/like`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    });
 }
 
 function addItem(listID, content) {
@@ -66,7 +103,8 @@ function addItem(listID, content) {
     removeButton.onclick = () => removeButton.parentNode.remove();
     contentSpan.innerHTML = content;
     newItem.append(contentSpan, removeButton);
-    list.appendChild(newItem);   
+    list.appendChild(newItem); 
+    return newItem  
 }
 
 function addStep() {
@@ -87,5 +125,14 @@ function addIngredient() {
 
     if (!name || !quantity || !unit)
         return;
+<<<<<<< HEAD
     addItem("ingredient-list", `${quantity} ${unit} of ${name}`);
 }
+=======
+    item = addItem("ingredient-list", `${quantity} ${unit} of ${name}`);
+}
+
+function addRecipe() {
+
+}
+>>>>>>> 66465947f414037bce5b15d8d5a85aa05c0ed451

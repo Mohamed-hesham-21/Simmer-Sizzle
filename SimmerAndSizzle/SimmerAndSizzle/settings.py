@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 import os
 
@@ -120,7 +120,12 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 MEDIA_URL = '/media/'
+<<<<<<< HEAD
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/') 
+=======
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+>>>>>>> 66465947f414037bce5b15d8d5a85aa05c0ed451
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 

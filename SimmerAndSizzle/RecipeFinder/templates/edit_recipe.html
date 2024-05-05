@@ -1,100 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="shortcut icon" href="icon.png">
-        <link rel="stylesheet" href="recipe.css">
-        <link rel="stylesheet" href="styles.css">
-        <script src="script.js"></script>
-        <title>Simmer & Sizzle</title>
-    </head>
-    <body>
-        <div class="main-view">
-            <div class="recipe-form-container">
-                <div class="row">
-                    <input required name="name" type="text" class="cool-form space" placeholder="Name">
-                </div>
-                <div class="row">
-                    <textarea name="description" rows="6" class="cool-form space" placeholder="Description"></textarea>
-                </div>
-                <div class="row">
-                    <input name="image_url" type="url" class="cool-form space" placeholder="Image url">
-                </div>
-                <div class="row-sp">
-                    <input name="prep_time" type="number" class="cool-form space" placeholder="Prep time (mins)">
-                    <input name="cook_time" type="number" class="cool-form space" placeholder="Cook time (mins)">
-                    <input name="servings" type="number" class="cool-form space" placeholder="Servings">
-                </div>
+{% extends 'new_recipe.html' %}
+{% load static %}
+{% block name %} {{ recipe.name }} {% endblock %}
+{% block description %} {{ recipe.description }} {% endblock %}
+{% block imageURL %} {{ recipe.imageURL }} {% endblock %}
 
-                <div class="dynamic-form space">
-                    <div class="dynamic-form-header">Ingredients</div>
-                    <div class="row-sp">
-                        <ol id="ingredient-list" class="cool-ol recipe-form-list">
-                            <li>
-                                <span>First ingredient</span>
-                                <button></button>
-                            </li>
-                            <li>
-                                <span>Second ingredient</span>
-                                <button></button>
-                            </li>
-                            <li>
-                                <span>Third ingredient</span>
-                                <button></button>
-                            </li>
-                        </ol>
-                        <div class="new-item-form-container space">
-                            <div class="row-sp">
-                                <select id="new-ingredient-name" name="name" class="cool-form space">
-                                    <option selected value="">Ingredient</option>
-                                    <option value="Egg">Egg</option>
-                                    <option value="Milk">Milk</option>
-                                    <option value="Flour">Flour</option>
-                                    <option value="Butter">Butter</option>
-                                    <option value="Baking powder">Baking powder</option>
-                                </select>
-                                <input id="new-ingredient-quantity" name="quantity" type="number" class="cool-form space" placeholder="Quantity">
-                                <select id="new-ingredient-unit" name="unit" id="" class="cool-form space">
-                                    <option selected value="">Unit</option>
-                                    <option value="g">g</option>
-                                    <option value="kg">kg</option>
-                                    <option value="lbs">lbs</option>
-                                    <option value="Tea Spoon">Tea Spoon</option>
-                                </select>
-                            </div>
-                            <button id="new-ingredient-button" class="cool-button space">Add</button>
-                        </div>
-                    </div>
-                </div>
+{% block cookTime %} {{ recipe.cookTime }} {% endblock %}
+{% block prepTime %} {{ recipe.prepTime }} {% endblock %}
+{% block servings %} {{ recipe.servings }} {% endblock %}
 
-                <div class="dynamic-form space">
-                    <div class="dynamic-form-header">Steps</div>
-                    <ol id="step-list" class="cool-ol recipe-form-list">
-                        <li>
-                            <span>First step</span>
-                            <button></button>
-                        </li>
-                        <li>
-                            <span>Second step</span>
-                            <button></button>
-                        </li>
-                        <li>
-                            <span>Third step</span>
-                            <button></button>
-                        </li>
-                    </ol>
-                    <div class="new-item-form-container">
-                        <textarea id="new-step-content" cols="30"  rows="5" class="cool-form space" placeholder="Write your step here..."></textarea>
-                        <button id="new-step-button" class="cool-button space">Add</button>
-                    </div>
-                    <div class="recipe-form-footer">
-                        <button class="danger-button bg-fnt space">Delete</button>
-                        <button class="bland-button bg-fnt space">Cancel</button>
-                        <button class="cool-button bg-fnt space">Save</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </body>
-</html>

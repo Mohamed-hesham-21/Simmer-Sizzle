@@ -4,18 +4,13 @@
 {% block body %}
 <div class="recipe-form-container">
     <div class="row">
-        <input required name="name" type="text" class="cool-form space" placeholder="Name">
+        <input required name="name" type="text" class="cool-form space" placeholder="Name" value="{% block name %}{% endblock %}">
     </div>
     <div class="row">
-        <textarea name="description" rows="6" class="cool-form space" placeholder="Description"></textarea>
+        <textarea name="description" rows="6" class="cool-form space" placeholder="Description" value="{% block description %}{% endblock %}"></textarea>
     </div>
-    <div class = "image-uploader-container">  
-        <label for="input-image" class="image-label"> 
-            <div class = "image-u-container">
-                <img src="{% static 'cameraicon.png'%}" alt="" id ="uploaded-image" width="45%">
-
-            </div>
-        </label>
+    <div class="row">
+        <input name="image_url" type="url" class="cool-form space" placeholder="Image url">
     </div>
     <form method="POST" enctype="multipart/form-data" action="/upload/" class = "image"> 
         {% csrf_token %} 
@@ -23,26 +18,20 @@
         <button type="submit">click me</button>
     </form>
     <div class="row-sp">
-        <input name="prep_time" type="number" class="cool-form space" placeholder="Prep time (mins)">
-        <input name="cook_time" type="number" class="cool-form space" placeholder="Cook time (mins)">
-        <input name="servings" type="number" class="cool-form space" placeholder="Servings">
+        <input name="prep_time" type="number" class="cool-form space" placeholder="Prep time (mins)" value="{% block prepTime %}{% endblock %}">
+        <input name="cook_time" type="number" class="cool-form space" placeholder="Cook time (mins)" value="{% block cookTime %}{% endblock %}">
+        <input name="servings" type="number" class="cool-form space" placeholder="Servings" value="{% block servings %}{% endblock %}">
     </div>
 
     <div class="dynamic-form space">
         <div class="dynamic-form-header">Ingredients</div>
         <div class="row-sp">
             <ol id="ingredient-list" class="cool-ol recipe-form-list">
+                {% block ingredients %}{% endblock %}
             </ol>
             <div class="new-item-form-container space">
                 <div class="row-sp">
-                    <select id="new-ingredient-name" name="name" class="cool-form space">
-                        <option selected value="">Ingredient</option>
-                        <option value="Egg">Egg</option>
-                        <option value="Milk">Milk</option>
-                        <option value="Flour">Flour</option>
-                        <option value="Butter">Butter</option>
-                        <option value="Baking powder">Baking powder</option>
-                    </select>
+                    <input type="text" class="cool-form space">
                     <input id="new-ingredient-quantity" name="quantity" type="number" class="cool-form space" placeholder="Quantity">
                     <select id="new-ingredient-unit" name="unit" id="" class="cool-form space">
                         <option selected value="">Unit</option>
@@ -60,15 +49,17 @@
     <div class="dynamic-form space">
         <div class="dynamic-form-header">Steps</div>
         <ol id="step-list" class="cool-ol recipe-form-list">
-            
+            {% block steps %}{% endblock %}
         </ol>
         <div class="new-item-form-container">
             <textarea id="new-step-content" cols="30"  rows="5" class="cool-form space" placeholder="Write your step here..."></textarea>
             <button id="new-step-button" class="cool-button space">Add</button>
         </div>
         <div class="recipe-form-footer">
+            {% block buttons %}
             <button class="bland-button bg-fnt space">Reset</button>
-            <button class="cool-button bg-fnt space">Add recipe</button>
+            <button id="add-recipe-button" class="cool-button bg-fnt space">Add recipe</button>
+            {% endblock %}
         </div>
     </div>
 </div>

@@ -17,6 +17,8 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 from django.conf import settings
@@ -25,4 +27,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("RecipeFinder.urls")),
+<<<<<<< HEAD
 ] + static(settings.MEDIA_URL , document_root = settings.MEDIA_ROOT)
+=======
+] + static(settings.MEDIA_URL , document_root = settings.MEDIA_ROOT)
+>>>>>>> 66465947f414037bce5b15d8d5a85aa05c0ed451

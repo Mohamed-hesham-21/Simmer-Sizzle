@@ -21,17 +21,12 @@
                     <div class="drop-down-menu">
                         <a class="drop-down-button navbar-link-item norm-link">Cuisines</a>
                         <div class="drop-down-options">
-                            <a href="#" class="navbar-link-item norm-link">Egyptian</a>
-                            <a href="#" class="navbar-link-item norm-link">Italian</a>
-                            <a href="#" class="navbar-link-item norm-link">Chinese</a>
-                            <a href="#" class="navbar-link-item norm-link">Mexican</a>
-                            <a href="#" class="navbar-link-item norm-link">Indian</a>
-                            <a href="#" class="navbar-link-item norm-link">Japanese</a>
-                            <a href="#" class="navbar-link-item norm-link">French</a>
-                            <a href="#" class="navbar-link-item norm-link">Canadian</a>
+                            {% for cuisine in cuisines %}
+                            <a href="{% url 'cuisine' cuisine.id %}" class="navbar-link-item norm-link">{{ cuisine }}</a>
+                            {% endfor %}
                         </div>
                     </div>
-                    <a href="#" class="navbar-link-item norm-link">About Us</a>
+                    <a href="{% url 'about' %}" class="navbar-link-item norm-link">About Us</a>
                     <div class="drop-down-menu">
                         <a class="drop-down-button navbar-link-item norm-link">{% if user.is_authenticated %} {{ user.username }} {% else %} Anonymous {% endif %} </a>
                         <div class="drop-down-options">
@@ -40,7 +35,7 @@
                             <a href="#" class="navbar-link-item norm-link">Your Recipes</a>
                             <span> <a href="{% url 'new_recipe' %}" class="navbar-link-item norm-link">Add Recipe</a> </span>
                             {% endif %}
-                            <a href="#" class="navbar-link-item norm-link">Favourites</a>
+                            <a href="{% url 'favourites' %}" class="navbar-link-item norm-link">Favourites</a>
                             <a href="{% url 'logout' %}" class="navbar-link-item norm-link">Logout</a>
                             {% else %}
                             <a href="{% url 'register' %}" class="navbar-link-item norm-link">Register</a>
@@ -56,6 +51,7 @@
                     </div>
                 </form>
             </div>
+            {% csrf_token %}
         </nav>
 
         <div class="main-view">
