@@ -54,10 +54,13 @@ class Recipe(models.Model):
     def __str__(self):
         return self.name
 
+    def popularityKey(self):
+        return self.likesCount() / self.viewsCount()
+
     @classmethod
     def trending(cls):
         recipes = list(Recipe.objects.all())
-        recipes.sort(key=lambda recipe: recipe.likesCount() / recipe.viewsCount(), reverse=True)
+        recipes.sort(key=lambda recipe: recipe.popularityKey(), reverse=True)
         return recipes
     
     @classmethod

@@ -1,5 +1,22 @@
-{% extends 'RecipeFinder/layout.html' %}
+{% extends "layout.html" %}
 {% load static %}
-{% block main_view %}
-    fml
+
+{% block body %}
+
+<div class="category-header">{{ header }}</div>
+{% if info %}
+<div class="cool-text-container">
+    {{ info }}
+</div>
+{% endif %}
+{% for category in categories %}
+<div class="category-container">
+    <div class="row">
+        <div class="fancy-header">{{ category.name }}</div> 
+        <a href="{{ category.link }}">
+            <button class="bland-button space">See more</button>
+        </a>
+    </div>
+</div>
+{% endfor %}
 {% endblock %}

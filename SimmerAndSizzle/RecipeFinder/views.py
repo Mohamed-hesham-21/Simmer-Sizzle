@@ -11,7 +11,8 @@ from django.core.paginator import Paginator
 from . import models
 # Create your views here.
 
-CATEGORY_LIMIT = 10
+CATEGORY_LIMIT = 3
+RECIPE_PER_CATEGORY_LIMIT = 10
 RECIPE_LIMIT = 10
 
 def template(fn):
@@ -64,7 +65,6 @@ class NewStepForm(forms.ModelForm):
             "content",
         )
 
-
 def checkRequest(request, auth=True, post=True, admin=False):
     if post and request.method != "POST":
         return JsonResponse({"error": "Only post method is allowed."}, status=400)
@@ -92,22 +92,61 @@ def checkLikes(user, recipes):
             recipe.liked = recipe.checkLike(user)
     return recipes; 
 
-def getPage(recipes, pageNum):
+def getRecipeCardList(recipes):
+    recipeList = []
+    for recipe in recipes:
+        recipeList.append({
+            "id": recipe.id,
+            "name": recipe.name,
+            "description": recipe.description,
+            "imageURL": recipe.image.url if recipe.image else None
+        })
+    return recipeList
+
+def getRecipeFromRequest(request):
+    data = json.loads(request.body)
+    if not data.get("recipe"):
+        return JsonResponse({"error": "Missing recipe."}, status=400)
+    missingKey = checkKeys(data["recipe"], list(NewRecipeForm.Meta.fields) + ["ingredients", "steps"])
+    if missingKey is not None:
+        return JsonResponse({"error": f"Missing {missingKey}."}, status=400)
+
+    recipeForm = NewRecipeForm(data["recipe"])
+    if not recipeForm.is_valid():
+        errors = checkFormErrors(recipeForm)
+        return JsonResponse({"error": errors[0]}, status=400)
+    
+    recipe = recipeForm.save(commit=False)
+    recipe.author = request.user
+    ingredientList = []
+    stepList = []
+
+    for ing in data["recipe"]["ingredients"]:
+        ing["ingredient"] = ing["ingredient"].strip().lower().capitalize()
+        ingredientForm = NewIngredientForm(ing)
+        if not ingredientForm.is_valid():
+            return JsonResponse({"error": checkFormErrors(ingredientForm)[0]}, status=400)
+        ingredient = ingredientForm.save(commit=False)
+        ingredient.recipe = recipe
+        ingredientList.append(ingredient)
+    
+    for index, step in enumerate(data["recipe"]["steps"]):
+        stepForm = NewStepForm(step)
+        if not stepForm.is_valid():
+            return JsonResponse({"error": checkFormErrors(stepForm)[0]}, status=400)
+        step = stepForm.save(commit=False)
+        step.index = index
+        step.recipe = recipe
+        stepList.append(step)
+
+    return [recipe, ingredientList, stepList]
+
+def getPage(items, pageNum, limit=RECIPE_LIMIT):
     if not len(recipes):
-        return None
-    recipes = recipes.order_by('-dateAdded')
-    pag = Paginator(recipes, RECIPE_LIMIT)
+        return []
+    pag = Paginator(items, limit)
     assert pageNum <= pag.num_pages
     return pag.page(pageNum).object_list
-
-def cuisines(request):
-    return JsonResponse({"cuisines": models.Cuisine.objects.all()})
-
-def units(request):
-    return JsonResponse({"units": models.Unit.objects.all()})
-
-def courses(request):
-    return JsonResponse({"courses": models.Recipe.courses()})
 
 def index(request):
     return render(request, "RecipeFinder/index.html")
@@ -122,6 +161,33 @@ def logout_view(request):
     auth.logout(request)
     return HttpResponseRedirect(reverse("index"))
 
+def about_view(request):
+    return render(request, "RecipeFinder/about.html")
+
+def favourites_view(request):
+    return render(request, "RecipeFinder/category.html")
+
+def favourites(request):
+    response = checkRequest(request, post=False)
+    if response is not None:
+        return response
+    recipeList = getRecipeCardList(recipes)
+    pageNum = request.GET["page"] if request.GET.get("page") else 1
+    try:
+        recipeList = getPage(recipeList, pageNum)
+    except AssertionError:
+        return JsonResponse({"error": "Page doesn't exist"})
+    return JsonResponse({"recipes": recipeList}, status=200)
+
+
+def add_recipe_view(request):
+    return render(request, "RecipeFinder/new_recipe.html", {
+        "cuisines": models.Cuisine.objects.all(),
+        "courses": models.Recipe.courses(),
+        "units": models.Unit.objects.all(),
+    })
+
+@csrf_exempt
 def register(request):
     response = checkRequest(request, auth=False)
     if response is not None:
@@ -163,96 +229,138 @@ def login(request):
         return JsonResponse({"error": "Invalid username and/or password."}, status=401)
     auth.login(request, user)
     return JsonResponse({"success": "User authenticated successfully"}, status=200)
-      
-
-# # @template
-# def index(request):
-#     categories = [{
-#         "name": "Trending",
-#         "recipes": checkLikes(request.user, Recipe.trending()[: CATEGORY_LIMIT]),
-#     }]
-#     if Cuisine.objects.all():
-#         cuisine = choice(list(Cuisine.objects.all()))
-#         categories.append({
-#             "name": cuisine.name,
-#             "recipes": cuisine.recipes.all()[: CATEGORY_LIMIT],
-#             })
-#     return render(request, "index.html", {
-#         "categories": categories,
-#         "cuisines": Cuisine.objects.all(),
-#     })
-
-def about_view(request):
-    return render(request, "RecipeFinder/about.html")
-
-def favourites_view(request):
-    return render(request, "RecipeFinder/category.html")
-
-def favourites(request):
-    response = checkRequest(request, post=False)
-    if response is not None:
-        return response
-    data = json.loads(request.body)
-    recipes = models.Recipe.favourites(request.user)
-    pageNum = data["page"] if data.get("page") else 1
-    try:
-        recipes = getPage(recipes, pageNum)
-    except AssertionError:
-        return JsonResponse({"error": "Page specified is not available"}, status=400)
-    return JsonResponse({"recipes": recipes}, status=200)
-
-
-def add_recipe_view(request):
-    return render(request, "RecipeFinder/new_recipe.html", {
-        "cuisines": models.Cuisine.objects.all(),
-        "courses": models.Recipe.courses(),
-        "units": models.Unit.objects.all(),
-    })
 
 @csrf_exempt
 def add_recipe(request):
-    response = checkRequest(request, admin=True)
+    response = checkRequest(request, admin=False)
     if response is not None:
         return response
-    data = json.loads(request.body)
-    if not data.get("recipe"):
-        return JsonResponse({"error": "Missing recipe."}, status=400)
-    missingKey = checkKeys(data["recipe"], list(NewRecipeForm.Meta.fields) + ["ingredients", "steps"])
-    if missingKey is not None:
-        return JsonResponse({"error": f"Missing {missingKey}."}, status=400)
-
-    recipeForm = NewRecipeForm(data["recipe"])
-    if not recipeForm.is_valid():
-        errors = checkFormErrors(recipeForm)
-        return JsonResponse({"error": errors[0]}, status=400)
-    
-    recipe = recipeForm.save(commit=False)
-    recipe.author = request.user
-    ingredientList = []
-    stepList = []
-    for ing in data["recipe"]["ingredients"]:
-        ingredientForm = NewIngredientForm(ing)
-        if not ingredientForm.is_valid():
-            return JsonResponse({"error": checkFormErrors(ingredientForm)[0]}, status=400)
-        ingredient = ingredientForm.save(commit=False)
-        ingredient.recipe = recipe
-        ingredientList.append(ingredient)
-    
-    for index, step in enumerate(data["recipe"]["steps"]):
-        stepForm = NewStepForm(step)
-        if not stepForm.is_valid():
-            return JsonResponse({"error": checkFormErrors(stepForm)[0]}, status=400)
-        step = stepForm.save(commit=False)
-        step.index = index
-        step.recipe = recipe
-        stepList.append(step)
-    
+    response = getRecipeFromRequest(request)
+    if isinstance(response, JsonResponse):
+        return response
+    recipe, ingredientList, stepList = response
     recipe.save()
     for ingredient in ingredientList:
         ingredient.save()
     for step in stepList:
         step.save()
     return JsonResponse({"recipe_id": recipe.id}, status=200)
+
+
+def recipes(request):
+    data = json.loads(request.body)
+    recipes = models.Recipe.objects.all()
+    if data.get("auther"):
+        if not models.User.filter(username=data["auther"]).exists():
+            return JsonResponse({"error": "user not found"})
+        recipes = recipes.filter(user=models.User.get(username=data["auther"]))
+    if data.get("cuisine"):
+        if not models.Cuisine.objects.filter(name=data["cuisine"]):
+            return JsonResponse({"error": "cuisine doesn't exist"})
+        recipes = recipes.filter(cuisine=models.Cuisine.get(username=data["cuisine"]))
+    if data.get("course"):
+        if data["course"] not in models.Recipe.courses():
+            return JsonResponse({"error": "course doesn't exist"})
+        recipes = recipes.filter(course=data["course"])
+
+    recipeList = getRecipeCardList(recipes)
+    pageNum = request.GET["page"] if request.GET.get("page") else 1
+    try:
+        recipeList = getPage(recipeList, pageNum)
+    except AssertionError:
+        return JsonResponse({"error": "Page doesn't exist"})
+    return JsonResponse({"recipes": recipeList}, status=200)
+    
+def recommendations(request, id):
+    try:
+        recipe = models.Recipe.objects.get(id=id)
+    except models.Recipe.DoesNotExist:
+        return JsonResponse({"error": "Recipe doesn't exist"}, status=404)
+
+    # same cuisine , exclude the recipe itself
+    recommended_recipes = models.Recipe.objects.filter(cuisine=recipe.cuisine, course=recipe.course).exclude(id=id)
+
+    if not recommended_recipes:
+        recommended_recipes = models.Recipe.objects.all()
+
+    # Sort recommended recipes by likes count in descending order
+    recommended_recipes = recommended_recipes.order_by('-likesCount')[:5]
+
+    return JsonResponse({"recipeList": getRecipeCardList(recommended_recipes)}, status=200)
+
+def search(request):
+    query = request.GET["q"].lower()
+    recipes = models.Recipe.objects.none()
+    recipes |= models.Recipe.objects.filter(name__contains=f"%{query}%")
+    recipes |= models.Recipe.objects.filter(course__contains=f"%{query}%")
+    for recipe in models.Recipe.objects.all():
+        match = False
+        if query in recipe.cuisine.name.lower():
+            match = True
+        for ingredient in recipe.ingredients.all():
+            if query in ingredient.ingredient.lower():
+                match = True
+        if match:
+            recipes |= models.Recipe.objects.filter(id=recipe.id)
+    recipeList = getRecipeCardList(recipes)
+    pageNum = request.GET["page"] if request.GET.get("page") else 1
+    try:
+        recipeList = getPage(recipeList, pageNum)
+    except AssertionError:
+        return JsonResponse({"error": "Page doesn't exist"})
+    return JsonResponse({"recipes": recipeList}, status=200)
+
+def like_recipe(request, id):
+    response = checkRequest(request)
+    if response is not None:
+        return response
+    if not models.Recipe.objects.filter(id=id):
+        return JsonResponse({"error": "Recipe doesn't exist"}, status=400)
+    
+    recipe = models.Recipe.objects.get(id=id)
+    if recipe.checkLike(request.user):        
+        request.user.likes.get(recipe=recipe).delete()
+        return JsonResponse({"success": "Recipe removed from favourites successfully"}, status=200)
+        
+    models.Like.objects.create(user=request.user, recipe=recipe)
+    return JsonResponse({"success": "Recipe added to favourites successfully"}, status=200)
+
+
+
+def edit_recipe(request, id):
+    response = checkRequest(request, admin=False)
+    if response is not None:
+        return response
+    
+    if not models.Recipe.objects.filter(id=id):
+        return JsonResponse({"error": "Recipe doesn't exist"}, status=400)
+    
+    oldRecipe = models.Recipe.objects.get(id=id)
+    response = getRecipeFromRequest(request)
+    if isinstance(response, JsonResponse):
+        return response
+    recipe, ingredientList, stepList = response
+    oldRecipe.delete()
+    recipe.id = id
+    recipe.save()
+    for ingredient in ingredientList:
+        ingredient.save()
+    for step in stepList:
+        step.save()
+    return JsonResponse({"recipe_id": recipe.id}, status=200)
+
+def delete_recipe(request, id):
+    response = checkRequest(request, admin=True)
+    if response is not None:
+        return response
+    if not models.Recipe.objects.filter(id=id):
+        return JsonResponse({"error": "Recipe doesn't exist"}, status=400)
+    
+    recipe = models.Recipe.objects.get(id=id)
+    # if recipe.author != request.user:
+    #     return JsonResponse({"error": "You can't delete a recipe you didn't create"}, status=403)
+    recipe.delete()
+    return JsonResponse({"success": "Recipe removed successufully"}, status=200)
 
 # @template
 # def edit_recipe_view(request, id):
@@ -334,32 +442,6 @@ def add_recipe(request):
 #     })
 
 
-# def all_ingredients_view(request):
-#     categories = []
-#     for ingredient in Ingredient.objects.all():
-#         category = {
-#             "name": ingredient.name,
-#             "recipes": ingredient.recipes.all()[: CATEGORY_LIMIT]
-#         }
-#         categories.append(category)
-#     return render(request, "index.html", {
-#         "header": "Ingredients",
-#         "categories": categories,
-#         "cuisines": Cuisine.objects.all(),
-#     })
-
-# def ingredient_view(request, id):
-#     ingredient = Ingredient.objects.get(id=id)
-    
-#     category = {
-#         "name": ingredient.name,
-#         "recipes": ingredient.recipes.all(),
-#     }
-#     return render(request, "category.html", {
-#         "category": category,
-#         "cuisines": Cuisine.objects.all(),
-#     })
-
 # def all_recipe_view(request):
 #     recipes = Recipe.trending()
 #     checkLikes(recipes)
@@ -397,56 +479,3 @@ def add_recipe(request):
 #         "recipe": recipe,
 #         "cuisines": Cuisine.objects.all(),
 #     })
-
-
-
-# def like_recipe(request, id):
-#     if request.method != "POST":
-#         return JsonResponse({"error": "Invalid method. Only POST method is allowed."}, status=400)
-#     if not request.user.is_authenticated:
-#             return JsonResponse({"error": "Authentication error"}, status=401)
-#     if not Recipe.objects.filter(id=id):
-#         return JsonResponse({"error": "Recipe doesn't exist"}, status=400)
-    
-#     recipe = Recipe.objects.get(id=id)
-#     if request.user.likes.filter(recipe=recipe):        
-#         request.user.likes.get(recipe=recipe).delete()
-#         return JsonResponse({"success": "Recipe removed from favourites successfully"}, status=200)
-        
-#     Like.objects.create(user=request.user, recipe=recipe)
-#     return JsonResponse({"success": "Recipe added to favourites successfully"}, status=200)
-
-
-
-# def edit_recipe(request, id):
-#     if request.method != "POST":
-#         return JsonResponse({"error": "Invalid method. Only POST method is allowed."}, status=400)
-#     if not request.user.is_authenticated or not request.user.isAdmin:
-#         return JsonResponse({"error": "Authentication error"}, status=401)
-#     if not Recipe.objects.filter(id=id):
-#         return JsonResponse({"error": "Recipe doesn't exist"}, status=400)
-    
-#     recipe = Recipe.objects.get(id=id)
-#     if recipe.author != request.user:
-#         return JsonResponse({"error": "You can't edit a recipe you didn't create"}, status=403)
-#     response = add_recipe(request)
-#     if response.status_code == 200:
-#         recipe.delete()
-#         recipe = Recipe.objects.get(id=response.content["recipe_id"])
-#         recipe.id = id
-#         recipe.save()
-#     return response
-
-# def delete_recipe(request, id):
-#     if request.method != "POST":
-#         return JsonResponse({"error": "Invalid method. Only POST method is allowed."}, status=400)
-#     if not request.user.is_authenticated or not request.user.isAdmin:
-#         return JsonResponse({"error": "Authentication error"}, status=401)
-#     if not Recipe.objects.filter(id=id):
-#         return JsonResponse({"error": "Recipe doesn't exist"}, status=400)
-    
-#     recipe = Recipe.objects.get(id=id)
-#     if recipe.author != request.user:
-#         return JsonResponse({"error": "You can't edit a recipe you didn't create"}, status=403)
-#     recipe.delete()
-#     return JsonResponse({"success": "Recipe removed successufully"}, status=200)

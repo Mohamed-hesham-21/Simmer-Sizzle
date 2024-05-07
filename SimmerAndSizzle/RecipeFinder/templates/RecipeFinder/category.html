@@ -1,2 +1,13 @@
-{% extends 'RecipeFinder/layout.html' %}
-{% block main_view %}
+{% extends "RecipeFinder/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="category-container">
+    <div class="fancy-header">{{ category.name }}</div>
+    {% if info %}
+    <div class="cool-text-container">
+        {{ info }}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -53,6 +53,14 @@
         </nav>
 
         <div class="main-view">
+            {% if linkHistory %}
+                <ul class="link-history">
+                    {% for link in linkHistory %}
+                    <li><a href="{{ link.ref }}" class="navbar-link-item norm-link">{{ link.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            
             {% block main_view %}
             {% endblock %}
             <div id="error-container"></div>
