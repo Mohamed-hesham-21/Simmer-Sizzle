@@ -94,7 +94,7 @@ class Recipe(models.Model):
             View.objects.create(user, self)
 
     def like(self, user):
-        if self.likes.filter(user) is None:
+        if not self.likes.filter(user=user).exists():
             Like.objects.create(user, self)
         else:
             self.likes.get(user=user).delete()

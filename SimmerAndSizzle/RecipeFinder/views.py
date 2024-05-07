@@ -1,6 +1,7 @@
 import json
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
@@ -146,6 +147,7 @@ def register(request):
     auth.login(request, user)
     return JsonResponse({"success": "User authenticated successfully"}, status=200)
 
+@csrf_exempt
 def login(request):
     response = checkRequest(request, auth=False)
     if response is not None:
@@ -207,6 +209,7 @@ def add_recipe_view(request):
         "units": models.Unit.objects.all(),
     })
 
+@csrf_exempt
 def add_recipe(request):
     response = checkRequest(request, admin=True)
     if response is not None:
