@@ -238,10 +238,11 @@ def add_recipe(request):
         ingredient.recipe = recipe
         ingredientList.append(ingredient)
     
-    for index, step in enumerate(data["steps"]):
+    for index, step in enumerate(data["recipe"]["steps"]):
         stepForm = NewStepForm(step)
         if not stepForm.is_valid():
             return JsonResponse({"error": checkFormErrors(stepForm)[0]}, status=400)
+        step = stepForm.save(commit=False)
         step.index = index
         step.recipe = recipe
         stepList.append(step)

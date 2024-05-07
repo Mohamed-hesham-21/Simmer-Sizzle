@@ -6,9 +6,9 @@ from django.core.validators import RegexValidator
 alpha = RegexValidator(r'^[a-zA-Z]*$', "Only alphabetic letters are allowed.")
 alphanumeric = RegexValidator(r'^[0-9a-zA-Z]*$', "Only alphanumeric characters are allowed.")
 
-def nonNegative(value, name):
+def nonNegative(value):
     if value < 0:
-        raise ValidationError(f"{name} can't be negative")
+        raise ValidationError(f" can't be negative")
     
 def adminValidator(userID):
     user = User.objects.get(id=userID)
@@ -130,7 +130,7 @@ class Ingredient(models.Model):
     unit = models.ForeignKey(Unit, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return f"{self.recipe.name}: {self.quantity} {self.ingredient} {self.quantity}"
+        return f"{self.recipe.name}: {self.quantity} {self.unit.name} of {self.ingredient}"
 
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes")
