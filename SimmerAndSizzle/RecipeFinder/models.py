@@ -6,14 +6,17 @@ from django.core.validators import RegexValidator
 alpha = RegexValidator(r'^[a-zA-Z]*$', "Only alphabetic letters are allowed.")
 alphanumeric = RegexValidator(r'^[0-9a-zA-Z]*$', "Only alphanumeric characters are allowed.")
 
-def non_negative(value, name):
+def nonNegative(value, name):
     if value < 0:
         raise ValidationError(f"{name} can't be negative")
+    
+def adminValidator(userID):
+    user = User.objects.get(id=userID)
+    if not user.isAdmin:
+        raise ValidationError
 
-# Create your models here.
 class User(AbstractUser):
     isAdmin = models.BooleanField(default=True)
-
 
 class Cuisine(models.Model):
     name = models.CharField(max_length=100, validators=[alpha])
@@ -25,21 +28,12 @@ class Cuisine(models.Model):
     def __str__(self):
         return self.name
 
-class Ingredient(models.Model):
-    name = models.CharField(max_length=100, validators=[alpha])
-    dateAdded = models.DateTimeField(auto_now_add=True)
-
 class Unit(models.Model):
     name = models.CharField(max_length=25, unique=True, validators=[alpha])
-    conversion = models.FloatField(null=True, validators=[non_negative])
+    conversion = models.FloatField(null=True, validators=[nonNegative])
 
     def __str__(self):
         return self.name
-
-def adminValidator(userID):
-    user = User.objects.get(id=userID)
-    if not user.isAdmin:
-        raise ValidationError
 
 class Recipe(models.Model):
     courses_pairs = [("Appetizers", "Appetizers"), ("Main Course", "Main Course"), ("Dessert", "Dessert")]
@@ -48,12 +42,12 @@ class Recipe(models.Model):
     description = models.TextField(max_length=1000)
     course = models.CharField(max_length=25, choices=courses_pairs)
     cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE, related_name="recipes")
-    prepTime = models.IntegerField(validators=[non_negative])
-    cookTime = models.IntegerField(validators=[non_negative])
-    servings = models.IntegerField(validators=[non_negative])
-    carbs = models.IntegerField(null=True, validators=[non_negative])
-    protein = models.IntegerField(null=True, validators=[non_negative])
-    fats = models.IntegerField(null=True, validators=[non_negative])
+    prepTime = models.IntegerField(validators=[nonNegative])
+    cookTime = models.IntegerField(validators=[nonNegative])
+    servings = models.IntegerField(validators=[nonNegative])
+    carbs = models.IntegerField(null=True, validators=[nonNegative])
+    protein = models.IntegerField(null=True, validators=[nonNegative])
+    fats = models.IntegerField(null=True, validators=[nonNegative])
     image = models.ImageField(null=True, upload_to="images/")
     dateAdded = models.DateTimeField(auto_now_add=True)
 
@@ -129,14 +123,14 @@ class Step(models.Model):
     def __str__(self):
         return f"{self.recipe.name}: {self.index} - {self.content}"
 
-class HasIngredient(models.Model):
+class Ingredient(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="ingredients")
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE, related_name="recipes")
-    quantity = models.FloatField()
+    ingredient = models.CharField(max_length=50)
+    quantity = models.FloatField(validators=[nonNegative])
     unit = models.ForeignKey(Unit, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return f"{self.recipe.name}: {self.quantity} {self.ingredient.unit} {self.ingredient.name}" 
+        return f"{self.recipe.name}: {self.quantity} {self.ingredient} {self.quantity}"
 
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes")

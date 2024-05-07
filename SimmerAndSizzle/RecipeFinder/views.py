@@ -51,24 +51,18 @@ class NewIngredientForm(forms.ModelForm):
     class Meta:
         model = models.Ingredient
         fields = (
-            "name",
+            "ingredient",
+            "quantity",
+            "unit",
         )
 
 class NewStepForm(forms.ModelForm):
     class Meta:
         model = models.Step
         fields = (
-            "name",
+            "content",
         )
 
-class NewIngredientConForm(forms.ModelForm):
-    class Meta:
-        model = models.HasIngredient
-        fields = (
-            "ingredient",
-            "quantity",
-            "unit",
-        )
 
 def checkRequest(request, auth=True, post=True, admin=False):
     if post and request.method != "POST":
@@ -132,7 +126,7 @@ def register(request):
     if response is not None:
         return response
     data = json.loads(request.body)
-    missingKey = checkKeys(data, NewUserForm.Meta.fields)
+    missingKey = checkKeys(data, list(NewUserForm.Meta.fields) + ["confirmation"])
     if missingKey is not None:
         return JsonResponse({"error": f"Missing {missingKey}."}, status=400)
 
@@ -228,43 +222,32 @@ def add_recipe(request):
     if not recipeForm.is_valid():
         errors = checkFormErrors(recipeForm)
         return JsonResponse({"error": errors[0]}, status=400)
+    
     recipe = recipeForm.save(commit=False)
     recipe.author = request.user
     ingredientList = []
+    stepList = []
     for ing in data["recipe"]["ingredients"]:
-        name = ing["name"].strip().lower().capitalize()
-        tempForm = NewIngredientForm(name)
-        if not tempForm.is_valid():
-            return JsonResponse({"error": "Ingrdient name is too long"}, status=400)
-        
-        ingredientList.append(name)
+        ingredientForm = NewIngredientForm(ing)
+        if not ingredientForm.is_valid():
+            return JsonResponse({"error": checkFormErrors(ingredientForm)[0]}, status=400)
+        ingredient = ingredientForm.save(commit=False)
+        ingredient.recipe = recipe
+        ingredientList.append(ingredient)
     
-
-    for ing in data["ingredients"]:
-        try:
-            name = ing["name"].strip().lower().capitalize()
-            if models.Ingredient.objects.filter(name=name) is not None:
-                ingredient = models.Ingredient.objects.get(name=name)
-            else:
-                ingredient = models.Ingredient(name=name)
-                ingredient.save()
-            quantity = ing["quantity"]
-            unit = Unit.objects.get(name=ing["unit"])
-            newIngredient = HasIngredient(recipe, ingredient, quantity, unit)
-            newIngredient.save()
-        except Exception:
-            recipe.delete()
-            return JsonResponse({"error": "Invalid ingredient"}, status=400)
+    for index, step in enumerate(data["steps"]):
+        stepForm = NewStepForm(step)
+        if not stepForm.is_valid():
+            return JsonResponse({"error": checkFormErrors(stepForm)[0]}, status=400)
+        step.index = index
+        step.recipe = recipe
+        stepList.append(step)
     
-    # for index, step in enumerate(data["steps"]):
-    #     try:
-    #         content = step["content"]
-    #         step = Step(recipe, content, index)
-    #         step.save()
-    #     except Exception:
-    #         recipe.delete()
-    #         return JsonResponse({"error": "Invalid step"}, status=400)
     recipe.save()
+    for ingredient in ingredientList:
+        ingredient.save()
+    for step in stepList:
+        step.save()
     return JsonResponse({"recipe_id": recipe.id}, status=200)
 
 # @template
