@@ -151,10 +151,14 @@ function saveRecipe(edit=false) {
         try {
             const reader = new FileReader();
             reader.readAsDataURL(imageInput.files[0]);
-            reader.addEventListener("load" , () => {
-                recipe.image = reader.result.split(",")[1];
-            });
+            reader.addEventListener("load" , (event) => {
+                const imageData = event.target.result;
+                // Send imageData to Django view
+            recipe.image = imageData;
+            console.log("-------");
+            console.log(recipe.image);
             sendRecipe(recipe, '/api/' + (edit ? `recipes/${getRecipeID()}/edit` : 'add_recipe'));
+            });
         }
         catch(err) {
             sendRecipe(recipe, '/api/' + (edit ? `recipes/${getRecipeID()}/edit` : 'add_recipe'));

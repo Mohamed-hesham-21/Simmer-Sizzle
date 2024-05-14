@@ -9,7 +9,13 @@ from django.urls import reverse
 from django import forms
 from random import choice
 from django.core.paginator import Paginator
+from django.core.files.base import ContentFile
+
 from . import models
+import base64
+from io import BytesIO
+from PIL import Image
+import os
 # Create your views here.
 
 CATEGORY_LIMIT = 3
@@ -119,6 +125,13 @@ def getRecipeCardList(recipes, user):
         })
     return recipeList
 
+def base64_file(data, name=None):
+    _format, _img_str = data.split(';base64,')
+    _name, ext = _format.split('/')
+    if not name:
+        name = _name.split(":")[-1]
+    return ContentFile(base64.b64decode(_img_str), name='{}.{}'.format(name, ext))
+
 def getRecipeFromRequest(request):
     data = json.loads(request.body)
     if not data.get("recipe"):
@@ -126,18 +139,15 @@ def getRecipeFromRequest(request):
     missingKey = checkKeys(data["recipe"], list(NewRecipeForm.Meta.fields) + ["ingredients", "steps"])
     if missingKey is not None:
         return JsonResponse({"error": f"Missing {missingKey}."}, status=400)
-
     # handing recipe image
-    recipe = data["recipe"]
-    recipe['image'];
-
-    # done handling
+    # data['recipe']['image'] =  base64_file(data = data['recipe']['image'])
+   # done handling
     recipeForm = NewRecipeForm(data["recipe"])
     if not recipeForm.is_valid():
         return JsonResponse({"error": checkFormErrors(recipeForm)[0]}, status=400)
 
-
     recipe = recipeForm.save(commit=False)
+    recipe.image = (base64_file(data = data['recipe']['image']))
     recipe.author = request.user
     ingredientList = []
     stepList = []
