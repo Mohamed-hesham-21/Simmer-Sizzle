@@ -40,82 +40,14 @@ function Ingredient(name, quantity, unit) {
     this.unit = unit;
 }
 
-function Cuisine(name, info) {
-    this.name = name;
-    this.info = info;
-}
-
-function loadRecipes() {
-    let mainView = document.querySelector(".main-view");
-    let cardView = document.createElement("div");
-    cardView.className = "card-view";
-    mainView.appendChild(cardView);
-    const recipes = JSON.parse(localStorage.getItem("recipes"));
-    displayRecipeCards(cardView, recipes);
-}
-
-function loadFavourites() {
-    let mainView = document.querySelector(".main-view");
-    let cardView = document.createElement("div");
-    cardView.className = "card-view";
-    mainView.appendChild(cardView);
-    const recipes = JSON.parse(localStorage.getItem("recipes"));
-    let favourites = [];
-    recipes.forEach(recipe => {
-        if (recipe.liked)
-            favourites.push(recipe);
-    });
-    displayRecipeCards(cardView, favourites);
-}
-
-function displayRecipeCards(container, recipes){
-    recipes.forEach(recipe => {
-        if (recipe.deleted)
-            return;
-        let card = document.createElement("div");
-        card.className = "card-container";
-        card.innerHTML = `
-            <div class="card">
-                <button data-id="${recipe.id}" class="card-fav-button${(recipe.liked ? " card-fav-button-filled" : "")}"></button>
-                <img src="${(recipe.image ? recipe.image : "static/food.jpg")}" alt="simmer & sizzle">
-                <div class="card-content">
-                    <h3>${recipe.name}</h3>
-                    <p>${recipe.description.slice(0, 100) + (recipe.description.length > 100 ? "..." : "")}</p>
-                    <a href="recipe.html?id=${recipe.id}">
-                        <button class="cool-button button-peach">Read More</button>
-                    </a>
-                </div>
-            </div>
-        `;
-        let likeButton = card.querySelector("button");
-        likeButton.onclick = () => toggleLike(likeButton);
-        container.appendChild(card);
-    })
-}
-
-function displayRecommendations(recipe) {
-    const allRecipes = JSON.parse(localStorage.getItem("recipes"));
-    let recipes = [];
-    allRecipes.forEach(item => {
-        if ((item.cuisine == recipe.cuisine || item.course == recipe.course) && item.id != recipe.id)
-            recipes.push(item);
-    });
-    let container = document.querySelector("#recommendations-container");
-    displayRecipeCards(container, recipes);
-}
-
 function toggleLike(button) {
-    let recipes = JSON.parse(localStorage.getItem("recipes"));
-    if (button.classList.contains("card-fav-button-filled")) {
+    if (button.classList.contains("card-fav-button-filled"))
         button.classList.remove("card-fav-button-filled");
-        recipes[button.dataset.id].liked = false;
-    }
-    else {
+    else
         button.classList.add("card-fav-button-filled");
-        recipes[button.dataset.id].liked = true;
-    }
-    
-    localStorage.setItem("recipes", JSON.stringify(recipes));
+    fetch(`${window.location.origin}/api/recipes/${button.dataset.id}/like`, {
+        method: "POST",
+    });
 }
 
 function toggleSave(button) {
@@ -126,53 +58,6 @@ function toggleSave(button) {
         button.innerHTML = "Save", recipes[button.dataset.id].liked = false;
 
     localStorage.setItem("recipes", JSON.stringify(recipes));
-}
-
-function setupRecipeForm() {
-    let form = document.querySelector("#new-recipe-form");
-    const cuisines = cuisineNames();
-    const courses = JSON.parse(localStorage.getItem("courses"));
-    const units = JSON.parse(localStorage.getItem("units"));
-
-    displayOptionList(form.querySelector("[name=cuisine]"), cuisines);
-    displayOptionList(form.querySelector("[name=course]"), courses);
-    displayOptionList(form.querySelector("[name=unit]"), units);
-}
-
-function setupEditRecipeForm(recipe) {
-    setupRecipeForm();
-    let form = document.querySelector("#new-recipe-form");
-    if (recipe.image)
-        form.querySelector("[name=recipe-image]").setAttribute("src" , recipe.image);
-    form.querySelector("[name=name]").value = recipe.name;
-    form.querySelector("[name=description]").value = recipe.description;
-    form.querySelector("[name=cuisine]").value = recipe.cuisine;
-    form.querySelector("[name=course]").value = recipe.course;
-
-    form.querySelector("[name=prepTime]").value = recipe.prepTime;
-    form.querySelector("[name=cookTime]").value = recipe.cookTime;
-    form.querySelector("[name=servings]").value = recipe.servings;
-
-    form.querySelector("[name=carbs]").value = recipe.carbs;
-    form.querySelector("[name=protein]").value = recipe.protein;
-    form.querySelector("[name=fats]").value = recipe.fats;
-
-    recipe.ingredients.forEach(ingredient => {
-        let item = addItem("ingredient-list", `${ingredient.quantity} ${ingredient.unit} of ${ingredient.name}`);
-        item.dataset.name = ingredient.name;
-        item.dataset.quantity = ingredient.quantity;
-        item.dataset.unit = ingredient.unit;
-    });
-    recipe.steps.forEach(step => addItem("step-list", step));
-}
-
-
-function displayOptionList(container, items) {
-    items.forEach(item => {
-        let option = document.createElement("option");
-        option.value = item, option.innerHTML = item;
-        container.appendChild(option);
-    });
 }
 
 function addStep() {
@@ -263,53 +148,51 @@ function getRecipeFromForm() {
 function addRecipe() {
     try {
         let recipe = getRecipeFromForm();
-        // let msg = validateRecipe(recipe);
-        // if (msg) {
-        //     displayErrorMessage(msg);
-        //     return false;
-        // }
+        let msg = validateRecipe(recipe);
+        if (msg) {
+            displayErrorMessage(msg);
+            return false;
+        }
         
-        // let image;
-        // let getImage = document.querySelector("#input-image");
-        // const reader = new FileReader();
-        // try {
-        //     reader.readAsDataURL(getImage.files[0]);
-        //     reader.addEventListener("load" , () => {
-        //     image = reader.result;
-        //     recipe.image = image;
-        //     recipes.push(recipe);
-        //     localStorage.setItem("recipes", JSON.stringify(recipes));
-        //     window.location.href += `/../recipe.html?id=${recipe.id}`;
-        // });
-        // }
-        // catch(err) {
-        //     recipes.push(recipe);
-        //     localStorage.setItem("recipes", JSON.stringify(recipes));
-        //     window.location.href += `/../recipe.html?id=${recipe.id}`;
-        // }
-        console.log(recipe)
-        fetch('api/add_recipe', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                recipe: recipe
-            }),
-        }).then(response => response.json()).then((response) => {
-            if ("error" in response) {
-                displayErrorMessage(response["error"]);
-            }
-            else {
-                window.location.href += "/..";
-            }
-        });
+        let imageInput = document.querySelector("#input-image");
+        try {
+            const reader = new FileReader();
+            reader.readAsDataURL(imageInput.files[0]);
+            reader.addEventListener("load" , () => {
+                recipe.image = reader.result.split(",")[1];
+            });
+            sendRecipe(recipe);
+        }
+        catch(err) {
+            sendRecipe(recipe);
+        }
         return false;
     }
     catch(err) {
         displayErrorMessage(err.message);
     }
+    return false;
+}
+
+function sendRecipe(recipe) {
+    console.log(recipe);
+    fetch('api/add_recipe', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            recipe: recipe
+        }),
+    }).then(response => response.json()).then((response) => {
+        if ("error" in response) {
+            displayErrorMessage(response["error"]);
+        }
+        else {
+            // window.location.href += `/../recipes/${response["recipe_id"]}`;
+        }
+    });
     return false;
 }
 
@@ -348,26 +231,13 @@ function editRecipe(id) {
     return false;
 }
 
-
 function deleteRecipe(id) {
     let recipes = JSON.parse(localStorage.getItem("recipes"));
     recipes[id].deleted = true;
     localStorage.setItem("recipes", JSON.stringify(recipes));
 }
 
-
-function cuisineNames() {
-    const cuisines = JSON.parse(localStorage.getItem("cuisines"));
-    let names = [];
-    cuisines.forEach(cuisine => {
-        names.push(cuisine.name);
-    });
-    return names;
-}
-
 function validateRecipe(recipe) {
-    const cuisines = cuisineNames();
-    const courses = JSON.parse(localStorage.getItem("courses"));
     if (!recipe.name) 
         return "Missing recipe name";
     if (recipe.name.length > 100)
@@ -378,10 +248,6 @@ function validateRecipe(recipe) {
     if (recipe.description.length > 1000)
         return "Recipe description is too long";
 
-    if (!cuisines.includes(recipe.cuisine))
-        return "Invalid cuisine";
-    if (!courses.includes(recipe.course))
-        return "Invalid course";
     if (recipe.prepTime < 0)
         return "Invalid prep time";
     if (recipe.carbs < 0)
@@ -415,8 +281,6 @@ function validateIngredient(ingredient) {
         return "Ingredient name can contain only alphabetic characters";
     if (ingredient.quantity <= 0)   
         return "Invalid quantity";
-    if (!units.includes(ingredient.unit))
-        return "Invalid unit";
     return "";
 }
 
@@ -445,7 +309,6 @@ function displayErrorMessage(msg) {
         }, 3000); // Hide stays
     }, 500); //display after 
 }
-
 
 function validateLogin(username, password) {
     if (!username)
@@ -539,161 +402,60 @@ function register() {
     return false;
 }
 
-function displayRecipe(recipe) {
-    let linkItems = [recipe.cuisine, recipe.course, recipe.name];
-    displayLinkHistory(linkItems);
-    document.querySelector("#recipe-image").setAttribute("src" , (recipe.image ? recipe.image : "static/food.jpg"));
-    document.querySelector("#Recipe_Name").innerHTML = recipe.name;
-    document.querySelector("#Recipe_Description").innerHTML = recipe.description;
-    document.querySelector("#PrepTime").innerHTML = `${recipe.prepTime} mins`
-    document.querySelector("#CookTime").innerHTML =  `${recipe.cookTime} mins`;
-    document.querySelector("#TotalTime").innerHTML = `${recipe.prepTime + recipe.cookTime} mins`;
-    document.querySelector("#Servings").innerHTML = `${recipe.servings}`;
-
-    document.querySelector("#carbs").innerHTML = `${recipe.carbs}`;
-    document.querySelector("#protein").innerHTML = `${recipe.protein}`;
-    document.querySelector("#fats").innerHTML = `${recipe.fats}`;
-    document.querySelector("#calories").innerHTML = `${(recipe.carbs + recipe.protein) * 4 + recipe.fats * 9}`;
-    
-    let ingredients = document.querySelector("#Ingredients");
-    for (const ingredient of recipe.ingredients) {
-        ingredients.innerHTML += 
-        `<li><input type="checkbox" class="cool-form checkbox-bg"> <span>${ingredient.quantity}  ${ingredient.unit} of ${ingredient.name} </span></li>`;
-    }
-    let steps = document.querySelector("#Steps");
-    for (const step of recipe.steps) {
-        steps.innerHTML += `<li> ${step} </li>`;
-    }
+async function getDataFromServer(keyword)
+{
+    const response = await fetch(window.location.origin + `/api/${keyword}`);
+    return response.json();
 }
 
-
-function displayLinkHistory(linkItems) {
-    let linkList = document.querySelector("#link-history");
-    linkItems.forEach(item => {
-        linkList.innerHTML += `<li><a href="#" class="navbar-link-item norm-link"> ${item} </a></li>`
-    })
-}
-
-function displayCuisine(cuisine, id) {
-    let mainView = document.querySelector(".main-view");
-    displayLinkHistory([cuisine.name]);
-    const recipes = JSON.parse(localStorage.getItem("recipes"));
-    const courses = JSON.parse(localStorage.getItem("courses"));
-    mainView.innerHTML += `
-        <div class="category-header"> ${cuisine.name} </div>
-        <div class="cool-text-container"> ${cuisine.info} </div>
-    `;
-    let idx = 0;
-    courses.forEach(course => {
-        let container = document.createElement("div");
-        container.className = "category-container";
-        container.innerHTML = `
-            <div class="row">
-                <div class="fancy-header"> ${course} </div> 
-                <a href="course.html?course=${idx++}&cuisine=${id}">
-                    <button class="bland-button space"> See more </button>
-                </a>
-            </div>
-        `;
-        let currentRecipes = [];
-        recipes.forEach(recipe => {
-            if (recipe.cuisine == cuisine.name && recipe.course == course)
-                currentRecipes.push(recipe);
-        });
-        let cardView = document.createElement("div");
-        cardView.className = "card-view";
-        container.appendChild(cardView);
-        displayRecipeCards(cardView, currentRecipes);
-        mainView.appendChild(container);
-    });
-}
-
-function displayCourse(cuisine, course) {
-    let mainView = document.querySelector(".main-view");
-    displayLinkHistory([cuisine.name, course]);
-    const allRecipes = JSON.parse(localStorage.getItem("recipes"));
-    let recipes = [];
-    allRecipes.forEach(recipe => {
-        if (recipe.cuisine == cuisine.name && recipe.course == course)
-            recipes.push(recipe);
-    });
-    let container = document.createElement("div");
-    container.className = "card-view";
-    displayRecipeCards(container, recipes);
-    mainView.appendChild(container);
-}
-
-
-function displayIngredient(ingredient) {
-    let mainView = document.querySelector(".main-view");
-    mainView.innerHTML += `
-        <div class="category-header"> Recipes with ${ingredient} </div>
-    `;
-    const allRecipes = JSON.parse(localStorage.getItem("recipes"));
-    let recipes = [];
-    allRecipes.forEach(recipe => {
-        let found = false;
-        recipe.ingredients.forEach(ing => {
-            if (ing.name.toLowerCase() == ingredient.toLowerCase())
-                found = true;
-        })
-        if (found)
-            recipes.push(recipe);
-    });
-    let container = document.createElement("div");
-    container.className = "card-view";
-    displayRecipeCards(container, recipes);
-    mainView.appendChild(container);
-}
-
-
-function searchRecipes(query) {
-    let mainView = document.querySelector(".main-view");
-    mainView.innerHTML += `
-        <div class="category-header"> Search: ${query} </div>
-    `;
-    const allRecipes = JSON.parse(localStorage.getItem("recipes"));
-    query = query.toLowerCase();
-    let recipes = [];
-    allRecipes.forEach(recipe => {
-        let match = false;
-        if (recipe.name.toLowerCase().includes(query) || recipe.cuisine.toLowerCase().includes(query) || recipe.course.toLowerCase().includes(query))
-            match = true;
-        recipe.ingredients.forEach(ingredient => {
-            if (ingredient.name.toLowerCase().includes(query))
-                match = true;
-        });
-        if (match)
-            recipes.push(recipe);
-    });
-    let container = document.createElement("div");
-    container.className = "card-view";
-    displayRecipeCards(container, recipes);
-    mainView.appendChild(container);
-}
-
-
-function setup() {
-    let cuisines = [
-        {
-            "name": "Egyptian",
-            "info": "Mother of all nations <3",
-        },
-        {
-            "name": "Mexican",
-            "info": "A lot of spicy food!",
-        },
-        {
-            "name": "Other",
-            "info": "Other not very populary cuisines",
+class RecipeCardLoader {
+    constructor(recipeAPI, infiniteScroll=true) {
+        this.recipeAPI = recipeAPI;
+        this.container = document.querySelector(`#${recipeAPI["id"]}`);
+        this.cont = true;
+        this.recipeAPI["request"]["page"] = 1;
+        if (infiniteScroll) {
+            window.onscroll = () => {
+                if ((window.innerHeight + window.scrollY >= document.body.offsetHeight) && this.cont)
+                    this.loadCards()
+            };
         }
-    ];
-    let units = ["g", "kg", "lbs", "ml", "l", "cup", "teaspoon", "tablespoon", "loaf"];
-    let courses = ["Main course", "Appetizer", "Dessert"];
-    localStorage.setItem("cuisines", JSON.stringify(cuisines));
-    localStorage.setItem("units", JSON.stringify(units));
-    localStorage.setItem("courses", JSON.stringify(courses));
-
-    if (!JSON.parse(localStorage.getItem("recipes")))
-        localStorage.setItem("recipes", JSON.stringify([]));
+    }
+    static transformJSON(str) {
+        return str.replaceAll(`"`, ``).replaceAll(`'`, `"`);
+    }
+    async loadCards() {
+        await fetch(window.location.origin + "/api/recipes", {
+            method: "POST",
+            body: JSON.stringify(this.recipeAPI["request"]),
+        }).then(response => response.json()).then(response => {
+            if ("recipeList" in response)
+                this.displayCards(response["recipeList"]);
+            else
+                this.cont = false;
+        });
+        this.recipeAPI["request"]["page"]++;
+    }
+    displayCards(recipes){
+        recipes.forEach(recipe => {
+            let card = document.createElement("div");
+            card.className = "card-container";
+            card.innerHTML = `
+                <div class="card">
+                    <button data-id="${recipe.id}" class="card-fav-button${(recipe.liked ? " card-fav-button-filled" : "")}"></button>
+                    <img src="${recipe.imageURL}" alt="simmer & sizzle">
+                    <div class="card-content">
+                        <h3>${recipe.name}</h3>
+                        <p>${recipe.description.slice(0, 100) + (recipe.description.length > 100 ? "..." : "")}</p>
+                        <a href="${recipe.url}">
+                            <button class="cool-button button-peach">Read More</button>
+                        </a>
+                    </div>
+                </div>
+            `;
+            let likeButton = card.querySelector("button");
+            likeButton.onclick = () => toggleLike(likeButton);
+            this.container.appendChild(card);
+        })
+    }
 }

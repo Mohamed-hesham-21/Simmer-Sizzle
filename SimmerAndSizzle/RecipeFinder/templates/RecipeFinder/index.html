@@ -1,7 +1,11 @@
-{% extends "layout.html" %}
+{% extends "RecipeFinder/layout.html" %}
 {% load static %}
 
-{% block body %}
+{% block main_view %}
+
+{% block scripts %}
+<script src="{% static 'RecipeFinder/index.js' %}"></script>
+{% endblock %}
 
 <div class="category-header">{{ header }}</div>
 {% if info %}
@@ -9,14 +13,15 @@
     {{ info }}
 </div>
 {% endif %}
-{% for category in categories %}
+{% for category in API %}
 <div class="category-container">
     <div class="row">
-        <div class="fancy-header">{{ category.name }}</div> 
-        <a href="{{ category.link }}">
+        <div class="fancy-header">{{ category.header }}</div> 
+        <a href="{{ category.url }}">
             <button class="bland-button space">See more</button>
         </a>
     </div>
+    <div id="{{ category.id }}" class="card-view"></div>
 </div>
 {% endfor %}
 {% endblock %}

@@ -13,6 +13,9 @@
         {% csrf_token %}
     </head>
     <body>
+        {% if API %}
+        {{ API | safe | json_script:"API" }}
+        {% endif %}
         <nav class="navbar-container">
             <div class="navbar row">
                 <a href="{% url 'index' %}" class="navbar-logo">
@@ -23,6 +26,9 @@
                     <div class="drop-down-menu">
                         <a class="drop-down-button navbar-link-item norm-link">Cuisines</a>
                         <div id="cuisine-list" class="drop-down-options">
+                            {% for cuisine in cuisines %}
+                            <a href="{% url 'cuisine' cuisine.id %}" class="navbar-link-item norm-link">{{ cuisine.name }}</a>
+                            {% endfor %}
                         </div>
                     </div>
                     <a href="{% url 'about' %}" class="navbar-link-item norm-link">About Us</a>
@@ -34,7 +40,7 @@
                             <a href="#" class="navbar-link-item norm-link">Your Recipes</a>
                             <a href="{% url 'add_recipe' %}" class="navbar-link-item norm-link">Add Recipe</a>
                             {% endif %}
-                            <a href="favourites.html" class="navbar-link-item norm-link">Favourites</a>
+                            <a href="{% url 'favourites' %}" class="navbar-link-item norm-link">Favourites</a>
                             <a href="{% url 'logout' %}" class="navbar-link-item norm-link">Logout</a>
                         </div>
                         {% else %}
@@ -54,7 +60,7 @@
 
         <div class="main-view">
             {% if linkHistory %}
-                <ul class="link-history">
+                <ul id="link-history">
                     {% for link in linkHistory %}
                     <li><a href="{{ link.ref }}" class="navbar-link-item norm-link">{{ link.name }}</a></li>
                     {% endfor %}

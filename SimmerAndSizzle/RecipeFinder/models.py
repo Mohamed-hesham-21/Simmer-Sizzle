@@ -29,14 +29,14 @@ class Cuisine(models.Model):
         return self.name
 
 class Unit(models.Model):
-    name = models.CharField(max_length=25, unique=True, validators=[alpha])
+    name = models.CharField(max_length=25, unique=True, validators=[alpha], primary_key=True)
     conversion = models.FloatField(null=True, validators=[nonNegative])
 
     def __str__(self):
         return self.name
 
 class Recipe(models.Model):
-    courses_pairs = [("Appetizers", "Appetizers"), ("Main Course", "Main Course"), ("Dessert", "Dessert")]
+    courses_pairs = [("Appetizers", "Appetizers"), ("Maincourse", "Maincourse"), ("Dessert", "Dessert")]
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="recipes", validators=[adminValidator])
     name = models.CharField(max_length=100, validators=[alpha])
     description = models.TextField(max_length=1000)
@@ -85,9 +85,6 @@ class Recipe(models.Model):
         if not self.carbs or not self.fats or not self.protein:
             return 0
         return 4 * self.carbs + 4 * self.protein + 9 * self.fats
-
-    def recommendations(self):
-        return Recipe.objects.filter(cuisine=self.cuisine).exclude(id=self.id).all()
     
     def checkLike(self, user):
         return True if user.likes.filter(recipe=self) else False
@@ -112,11 +109,7 @@ class Recipe(models.Model):
         return self.steps.all().order_by("index")
     
     def getIngredients(self):
-        ingredients = self.ingredients.all()
-        for ing in ingredients:
-            ing.name = ing.ingredient.name
-            ing.unit = ing.ingredient.unit
-        return ingredients
+        return self.ingredients.all()
 
 class Step(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="steps")
@@ -128,7 +121,7 @@ class Step(models.Model):
 
 class Ingredient(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="ingredients")
-    ingredient = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
     quantity = models.FloatField(validators=[nonNegative])
     unit = models.ForeignKey(Unit, null=True, on_delete=models.SET_NULL)
 

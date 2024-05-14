@@ -9,35 +9,35 @@
         <div class="row-sp">
             <div class="recipe-basic-info">
                 <div class="row">
-                    <input name="name" type="text" class="cool-form space" placeholder="Name" val">
+                    <input name="name" type="text" class="cool-form space" placeholder="Name" value="{% block name %}{% endblock %}">
                 </div>
                 <div class="row">
-                    <textarea name="description" rows="6" class="cool-form space" placeholder="Description" value=""></textarea>
+                    <textarea name="description" rows="6" class="cool-form space" placeholder="Description">{% block description %}{% endblock %}</textarea>
                 </div>
                 <div class="row-sp">
-                    <select name="cuisine" class="cool-form space">
-                        <option selected value="">Cuisine</option>
+                    <select name="cuisine" class="cool-form space" value="{% block cuisine %}{% endblock %}">
+                        <option value="">Cuisine</option>
                         {% for cuisine in cuisines %}
-                        <option value="{{ cuisine.id }}"> {{ cuisine.name }} </option>
+                        <option {% if cuisine.id == recipe.cuisine.id %} selected {% endif %} value="{{ cuisine.id }}"> {{ cuisine.name }} </option>
                         {% endfor %}
                     </select>
-                    <select name="course" class="cool-form space">
-                        <option selected value="">Course</option>
+                    <select name="course" class="cool-form space" value="{% block course %}{% endblock %}">
+                        <option value="">Course</option>
                         {% for course in courses %}
-                        <option value="{{ course }}"> {{ course }} </option>
+                        <option {% if course == recipe.course %} selected {% endif %} value="{{ course }}">{{ course }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="row-sp">
-                    <input name="prepTime" type="number" class="cool-form space" placeholder="Prep time (mins)" value="">
-                    <input name="cookTime" type="number" class="cool-form space" placeholder="Cook time (mins)" value="">
-                    <input name="servings" type="number" class="cool-form space" placeholder="Servings" value="">
+                    <input name="prepTime" type="number" class="cool-form space" placeholder="Prep time (mins)" value="{% block prepTime %}{% endblock %}">
+                    <input name="cookTime" type="number" class="cool-form space" placeholder="Cook time (mins)" value="{% block cookTime %}{% endblock %}">
+                    <input name="servings" type="number" class="cool-form space" placeholder="Servings" value="{% block servings %}{% endblock %}">
                 </div>
             </div>
             <div class="image-uploader">
                 <div class = "image-uploader-container">  
                     <label for="input-image" class="image-label"> 
-                        <img name="recipe-image" src="{% static 'RecipeFinder/cameraicon.png' %}" alt="" id="uploaded-image">
+                        <img name="recipe-image" src="{% block imageURL %}{% static 'RecipeFinder/cameraicon.png' %}{% endblock %}" alt="" id="uploaded-image">
                     </label>
                 </div>
                 <input type="file" name="image" accept="image/jpeg, image/png, image/jpg" id="input-image" style="display:none;">
@@ -46,9 +46,9 @@
         <div class="dynamic-form space">
             <div class="dynamic-form-header">Nutrition Facts</div>
             <div class="row-sp">
-                <input name="carbs" type="number" class="cool-form space" placeholder="Carbs" value="">
-                <input name="protein" type="number" class="cool-form space" placeholder="Protein" value="">
-                <input name="fats" type="number" class="cool-form space" placeholder="Fats" value="">
+                <input name="carbs" type="number" class="cool-form space" placeholder="Carbs" value="{% block carbs %}{% endblock %}">
+                <input name="protein" type="number" class="cool-form space" placeholder="Protein" value="{% block protein %}{% endblock %}">
+                <input name="fats" type="number" class="cool-form space" placeholder="Fats" value="{% block fats %}{% endblock %}">
             </div>
         </div>
         
@@ -56,8 +56,7 @@
         <div class="dynamic-form space">
             <div class="dynamic-form-header">Ingredients</div>
             <div class="row-sp">
-                <ol id="ingredient-list" class="cool-ol recipe-form-list">
-                </ol>
+                <ol id="ingredient-list" class="cool-ol recipe-form-list">{% block ingredients %}{% endblock %}</ol>
                 <div class="new-item-form-container space">
                     <div class="row-sp">
                         <input id="new-ingredient-name" name="name" type="text" class="cool-form space" placeholder="Ingredient">
@@ -65,7 +64,7 @@
                         <select id="new-ingredient-unit" name="unit" id="" class="cool-form space">
                             <option selected value="">Unit</option>
                             {% for unit in units %}
-                            <option value="{{ unit.id }}"> {{ unit.name }} </option>
+                            <option value="{{ unit.pk }}"> {{ unit.name }} </option>
                             {% endfor %}
                         </select>
                     </div>
@@ -76,17 +75,17 @@
     
         <div class="dynamic-form space">
             <div class="dynamic-form-header">Steps</div>
-            <ol id="step-list" class="cool-ol recipe-form-list">
-    
-            </ol>
+            <ol id="step-list" class="cool-ol recipe-form-list">{% block steps %}{% endblock %}</ol>
             <div class="new-item-form-container">
                 <textarea id="new-step-content" cols="30"  rows="5" class="cool-form space" placeholder="Write your step here..."></textarea>
                 <button type="button" id="new-step-button" class="cool-button space">Add</button>
             </div>
         </div>
         <div class="recipe-form-footer">
+            {% block buttons %}
             <button type="button" class="bland-button bg-fnt space">Reset</button>
             <button type="submit" class="cool-button bg-fnt space">Add Recipe</button>
+            {% endblock %}
         </div>
     </div>
 </form>

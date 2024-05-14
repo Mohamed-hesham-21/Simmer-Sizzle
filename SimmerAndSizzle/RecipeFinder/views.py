@@ -1,4 +1,5 @@
 import json
+from django.templatetags.static import static
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
@@ -14,14 +15,17 @@ from . import models
 CATEGORY_LIMIT = 3
 RECIPE_PER_CATEGORY_LIMIT = 10
 RECIPE_LIMIT = 10
+# RECOMMENDATIONS_LIMIT = 5
 
-def template(fn):
+def exceptionHandled(fn):
     def wrapper(*args, **kwargs):
         try:
             return fn(*args, **kwargs)
         except Exception:
             return HttpResponseRedirect(reverse('index'))
     return wrapper
+
+# Forms to handle invalid data
 
 class NewRecipeForm(forms.ModelForm):
     class Meta:
@@ -53,7 +57,7 @@ class NewIngredientForm(forms.ModelForm):
     class Meta:
         model = models.Ingredient
         fields = (
-            "ingredient",
+            "name",
             "quantity",
             "unit",
         )
@@ -64,6 +68,8 @@ class NewStepForm(forms.ModelForm):
         fields = (
             "content",
         )
+
+# Helper functions
 
 def checkRequest(request, auth=True, post=True, admin=False):
     if post and request.method != "POST":
@@ -92,14 +98,16 @@ def checkLikes(user, recipes):
             recipe.liked = recipe.checkLike(user)
     return recipes; 
 
-def getRecipeCardList(recipes):
+def getRecipeCardList(recipes, user):
     recipeList = []
     for recipe in recipes:
         recipeList.append({
             "id": recipe.id,
             "name": recipe.name,
             "description": recipe.description,
-            "imageURL": recipe.image.url if recipe.image else None
+            "imageURL": recipe.image.url if recipe.image else static("RecipeFinder/food.jpg"),
+            "liked": recipe.checkLike(user),
+            "url": reverse("recipe", args=(recipe.id,))
         })
     return recipeList
 
@@ -111,18 +119,23 @@ def getRecipeFromRequest(request):
     if missingKey is not None:
         return JsonResponse({"error": f"Missing {missingKey}."}, status=400)
 
+    # handing recipe image
+    recipe = data["recipe"]
+    recipe['image'];
+
+    # done handling
     recipeForm = NewRecipeForm(data["recipe"])
     if not recipeForm.is_valid():
-        errors = checkFormErrors(recipeForm)
-        return JsonResponse({"error": errors[0]}, status=400)
-    
+        return JsonResponse({"error": checkFormErrors(recipeForm)[0]}, status=400)
+
+
     recipe = recipeForm.save(commit=False)
     recipe.author = request.user
     ingredientList = []
     stepList = []
 
     for ing in data["recipe"]["ingredients"]:
-        ing["ingredient"] = ing["ingredient"].strip().lower().capitalize()
+        ing["name"] = ing["name"].strip().lower().capitalize()
         ingredientForm = NewIngredientForm(ing)
         if not ingredientForm.is_valid():
             return JsonResponse({"error": checkFormErrors(ingredientForm)[0]}, status=400)
@@ -131,6 +144,7 @@ def getRecipeFromRequest(request):
         ingredientList.append(ingredient)
     
     for index, step in enumerate(data["recipe"]["steps"]):
+        step = {"content": step}
         stepForm = NewStepForm(step)
         if not stepForm.is_valid():
             return JsonResponse({"error": checkFormErrors(stepForm)[0]}, status=400)
@@ -138,54 +152,153 @@ def getRecipeFromRequest(request):
         step.index = index
         step.recipe = recipe
         stepList.append(step)
-
+    print(data["recipe"]["image"])
     return [recipe, ingredientList, stepList]
 
 def getPage(items, pageNum, limit=RECIPE_LIMIT):
-    if not len(recipes):
-        return []
+    assert len(items) > 0
     pag = Paginator(items, limit)
     assert pageNum <= pag.num_pages
     return pag.page(pageNum).object_list
 
+def defaultContext(dic={}):
+    dic["cuisines"] = models.Cuisine.objects.all()
+    dic["courses"] = models.Recipe.courses()
+    dic["units"] = models.Unit.objects.all()
+    return dic;
+
+# views
+
 def index(request):
-    return render(request, "RecipeFinder/index.html")
+    return render(request, "RecipeFinder/index.html", defaultContext())
 
 def login_view(request):
-    return render(request, "RecipeFinder/login.html")
+    return render(request, "RecipeFinder/login.html", defaultContext())
 
 def register_view(request):
-    return render(request, "RecipeFinder/register.html")
+    return render(request, "RecipeFinder/register.html", defaultContext())
 
 def logout_view(request):
     auth.logout(request)
     return HttpResponseRedirect(reverse("index"))
 
 def about_view(request):
-    return render(request, "RecipeFinder/about.html")
+    return render(request, "RecipeFinder/about.html", defaultContext())
 
 def favourites_view(request):
-    return render(request, "RecipeFinder/category.html")
-
-def favourites(request):
-    response = checkRequest(request, post=False)
-    if response is not None:
-        return response
-    recipeList = getRecipeCardList(recipes)
-    pageNum = request.GET["page"] if request.GET.get("page") else 1
-    try:
-        recipeList = getPage(recipeList, pageNum)
-    except AssertionError:
-        return JsonResponse({"error": "Page doesn't exist"})
-    return JsonResponse({"recipes": recipeList}, status=200)
-
+    return render(request, "RecipeFinder/category.html", defaultContext({
+        "header": "Favourites",
+        "API": 
+        [
+            {
+                "request": {
+                    "favourites": 1,
+                },
+                "id": "favourites-container",
+            }
+        ]
+    }))
 
 def add_recipe_view(request):
-    return render(request, "RecipeFinder/new_recipe.html", {
+    return render(request, "RecipeFinder/new_recipe.html", defaultContext())
+
+def edit_recipe_view(request, id):
+    return render(request, "RecipeFinder/edit_recipe.html", defaultContext({
+        "recipe": models.Recipe.objects.get(id=id),
+    }))
+
+def cuisine_view(request, id):
+    cuisine = models.Cuisine.objects.get(id=id)
+    API = []
+    for course in models.Recipe.courses():
+        API.append({
+            "header": course,
+            "request": {
+                "cuisine": id,
+                "course": course
+            },
+            "id": f"{cuisine.name}-{course}-container",
+            "url": reverse("course", args=(id, course)),
+        })
+    
+    linkHistory = [
+        {
+            "name": cuisine.name,
+            "ref": reverse("cuisine", args=(cuisine.id,))
+        }
+    ]
+
+    return render(request, "RecipeFinder/index.html", {
+        "linkHistory": linkHistory,
+        "header": cuisine.name,
+        "info": cuisine.info,
         "cuisines": models.Cuisine.objects.all(),
-        "courses": models.Recipe.courses(),
-        "units": models.Unit.objects.all(),
+        "API": API,
     })
+
+def course_view(request, id, course):
+    assert course in models.Recipe.courses()
+    cuisine = models.Cuisine.objects.get(id=id)
+
+    linkHistory = [
+        {
+            "name": cuisine.name,
+            "ref": reverse("cuisine", args=(cuisine.id,)),
+        },
+        {
+            "name": course,
+            "ref": reverse("course", args=(cuisine.id, course)),
+        }
+    ]
+    return render(request, "RecipeFinder/category.html", defaultContext({
+        "linkHistory": linkHistory,
+        "API": 
+        [
+            {
+                "request": {
+                    "cuisine": id,
+                    "course": course,
+                },
+                "id": f"{cuisine.name}-{course}-main-container",
+            }
+        ]
+    }))
+
+def recipes_view(request):
+    return render(request, "RecipeFinder/category.html", defaultContext())
+
+def recipe_view(request, id):
+    recipe = models.Recipe.objects.get(id=id)
+    if request.user.is_authenticated:
+        recipe.addView(request.user)
+    recipe.liked = recipe.checkLike(request.user)
+    linkHistory = [
+        {
+            "name": recipe.cuisine.name,
+            "ref": reverse("cuisine", args=(recipe.cuisine.id,))
+        },
+        {
+            "name": recipe.course,
+            "ref": reverse("course", args=(recipe.cuisine.id, recipe.course))
+        },
+        {
+            "name": recipe.name,
+            "ref": reverse("recipe", args=(recipe.id,))
+        }
+    ]
+    return render(request, "RecipeFinder/recipe.html", defaultContext({
+        "linkHistory": linkHistory,
+        "recipe": recipe,
+        "API": 
+        [
+            {
+                "request": {
+                    "recipeToRecommend": id
+                },
+                "id": "recommendations-container"
+            }
+        ]
+    }))
 
 @csrf_exempt
 def register(request):
@@ -246,47 +359,52 @@ def add_recipe(request):
         step.save()
     return JsonResponse({"recipe_id": recipe.id}, status=200)
 
-
+@csrf_exempt
 def recipes(request):
     data = json.loads(request.body)
     recipes = models.Recipe.objects.all()
-    if data.get("auther"):
-        if not models.User.filter(username=data["auther"]).exists():
+    if data.get("author"):
+        if not models.User.objects.filter(username=data["author"]).exists():
             return JsonResponse({"error": "user not found"})
-        recipes = recipes.filter(user=models.User.get(username=data["auther"]))
+        recipes = recipes.filter(user=models.User.objects.get(username=data["author"]))
     if data.get("cuisine"):
-        if not models.Cuisine.objects.filter(name=data["cuisine"]):
+        if not models.Cuisine.objects.filter(id=data["cuisine"]):
             return JsonResponse({"error": "cuisine doesn't exist"})
-        recipes = recipes.filter(cuisine=models.Cuisine.get(username=data["cuisine"]))
+        recipes = recipes.filter(cuisine=models.Cuisine.objects.get(id=data["cuisine"]))
     if data.get("course"):
         if data["course"] not in models.Recipe.courses():
             return JsonResponse({"error": "course doesn't exist"})
         recipes = recipes.filter(course=data["course"])
+    if data.get("recipeToRecommend"):
+        try:
+            recipe = models.Recipe.objects.get(id=data["recipeToRecommend"])
+        except models.Recipe.DoesNotExist:
+            return JsonResponse({"error": "Recipe doesn't exist"}, status=404)
 
-    recipeList = getRecipeCardList(recipes)
-    pageNum = request.GET["page"] if request.GET.get("page") else 1
+        recipes = recipes.filter(cuisine=recipe.cuisine, course=recipe.course).exclude(id=data["recipeToRecommend"])
+
+    # if not recipes:
+    #     recipes = models.Recipe.objects.all()
+
+    
+    recipeList = []
+    if data.get("favourites"):
+        response = checkRequest(request, post=False)
+        if response is not None:
+            return response
+        for recipe in recipes:
+            if recipe.checkLike(request.user):
+                recipeList.append(recipe)
+    else:
+        recipeList = list(recipes)
+    recipeList.sort(key=lambda recipe: recipe.likesCount(), reverse=True)
+    recipeList = getRecipeCardList(recipeList, request.user)
+    pageNum = data["page"] if data.get("page") else 1
     try:
         recipeList = getPage(recipeList, pageNum)
     except AssertionError:
-        return JsonResponse({"error": "Page doesn't exist"})
-    return JsonResponse({"recipes": recipeList}, status=200)
-    
-def recommendations(request, id):
-    try:
-        recipe = models.Recipe.objects.get(id=id)
-    except models.Recipe.DoesNotExist:
-        return JsonResponse({"error": "Recipe doesn't exist"}, status=404)
-
-    # same cuisine , exclude the recipe itself
-    recommended_recipes = models.Recipe.objects.filter(cuisine=recipe.cuisine, course=recipe.course).exclude(id=id)
-
-    if not recommended_recipes:
-        recommended_recipes = models.Recipe.objects.all()
-
-    # Sort recommended recipes by likes count in descending order
-    recommended_recipes = recommended_recipes.order_by('-likesCount')[:5]
-
-    return JsonResponse({"recipeList": getRecipeCardList(recommended_recipes)}, status=200)
+        return JsonResponse({"error": "Page doesn't exist"}, status=400)
+    return JsonResponse({"recipeList": recipeList}, status=200)
 
 def search(request):
     query = request.GET["q"].lower()
@@ -302,14 +420,15 @@ def search(request):
                 match = True
         if match:
             recipes |= models.Recipe.objects.filter(id=recipe.id)
-    recipeList = getRecipeCardList(recipes)
+    recipeList = getRecipeCardList(recipes, request.user)
     pageNum = request.GET["page"] if request.GET.get("page") else 1
     try:
         recipeList = getPage(recipeList, pageNum)
     except AssertionError:
         return JsonResponse({"error": "Page doesn't exist"})
-    return JsonResponse({"recipes": recipeList}, status=200)
+    return JsonResponse({"recipeList": recipeList}, status=200)
 
+@csrf_exempt
 def like_recipe(request, id):
     response = checkRequest(request)
     if response is not None:
@@ -324,8 +443,6 @@ def like_recipe(request, id):
         
     models.Like.objects.create(user=request.user, recipe=recipe)
     return JsonResponse({"success": "Recipe added to favourites successfully"}, status=200)
-
-
 
 def edit_recipe(request, id):
     response = checkRequest(request, admin=False)
@@ -362,120 +479,17 @@ def delete_recipe(request, id):
     recipe.delete()
     return JsonResponse({"success": "Recipe removed successufully"}, status=200)
 
-# @template
-# def edit_recipe_view(request, id):
-#     recipe = Recipe.objects.get(id=id)
-#     assert recipe.author == request.user
-#     return render(request, "new_recipe.html", {
-#         "recipe": recipe,
-#         "cuisines": Cuisine.objects.all(),
-#         "courses": Recipe.courses(),
-#         "units": Unit.objects.all(),
-#     })
+def units(request):
+    units = []
+    for unit in models.Unit.objects.all():
+        units.append(unit.name)
+    return JsonResponse({"units": units}, status=200)
 
+def cuisines(request):
+    cuisines = []
+    for cuisine in models.Cuisine.objects.all():
+        cuisines.append(cuisine.name)
+    return JsonResponse({"cuisines": cuisines}, status=200)
 
-# def all_cuisines_view(request):
-#     categories = []
-#     for cuisine in Cuisine.objects.all():
-#         category = {
-#             "name": cuisine.name,
-#             "recipes": cuisine.recipes.all()[: CATEGORY_LIMIT]
-#         }
-#         categories.append(category)
-#     return render(request, "index.html", {
-#         "header": "Cusines",
-#         "categories": categories,
-#         "cuisines": Cuisine.objects.all(),
-#     })
-
-# @template
-# def cuisine_view(request, id):
-#     cuisine = Cuisine.objects.get(id=id)
-    
-#     categories = []
-#     for course in Recipe.courses():
-#         category = {
-#             "name": course,
-#             "recipes": Cuisine.recipes.filter(course=course)[: CATEGORY_LIMIT],
-#             "link": reverse("course", args=(cuisine.id, course))
-#         }
-#         categories.append(category)
-    
-#     linkHistory = [
-#         {
-#             "name": cuisine.name,
-#             "ref": reverse("cuisine", args=(cuisine.id,))
-#         }
-#     ]
-
-#     return render(request, "index.html", {
-#         "linkHistory": linkHistory,
-#         "header": cuisine.name,
-#         "info": cuisine.info,
-#         "categories": categories,
-#         "cuisines": Cuisine.objects.all(),
-#     })
-
-# @template
-# def course_view(request, id, course):
-#     assert course in recipe.courses()
-#     cuisine = Cuisine.objects.get(id=id)
-#     category = {
-#         "name": course,
-#         "recipes": cuisine.recipes.filter(course=course),
-#     }
-
-#     linkHistory = [
-#         {
-#             "name": cuisine.name,
-#             "ref": reverse("cuisine", args=(cuisine.id,)),
-#         },
-#         {
-#             "name": course,
-#             "ref": reverse("course", args=(cuisine.id, course)),
-#         }
-#     ]
-#     return render(request, "category.html", {
-#         "linkHistory": linkHistory,
-#         "category": category,
-#         "cuisines": Cuisine.objects.all(),
-#     })
-
-
-# def all_recipe_view(request):
-#     recipes = Recipe.trending()
-#     checkLikes(recipes)
-#     category = {
-#         "name": "All recipes",
-#         "recipes": recipes,
-#     }
-#     return render(request, "category.html", {
-#         "category": category,
-#         "cuisines": Cuisine.objects.all(),
-#     })
-
-# @template
-# def recipe_view(request, id):
-#     recipe = Recipe.objects.get(id=id)
-#     if request.user.is_authenticated:
-#         recipe.addView(request.user)
-#     recipe.liked = recipe.checkLike(request.user)
-#     linkHistory = [
-#         {
-#             "name": recipe.cuisine.name,
-#             "ref": reverse("cuisine", args=(recipe.cuisine.id,))
-#         },
-#         {
-#             "name": recipe.course,
-#             "ref": reverse("course", args=(recipe.cuisine.id, recipe.course))
-#         },
-#         {
-#             "name": recipe.name,
-#             "ref": reverse("recipe", args=(recipe.id,))
-#         }
-#     ]
-#     return render(request, "recipe.html", {
-#         "linkHistory": linkHistory,
-#         "recipe": recipe,
-#         "cuisines": Cuisine.objects.all(),
-#     })
+def courses(request):
+    return JsonResponse({"courses": models.Recipe.courses()}, status=200)

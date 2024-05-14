@@ -1,13 +1,15 @@
 {% extends "RecipeFinder/layout.html" %}
 {% load static %}
 
-{% block body %}
+{% block scripts %}
+<script src="{% static 'RecipeFinder/category.js' %}"></script>
+{% endblock %}
+
+{% block main_view %}
+{% for category in API %}
 <div class="category-container">
-    <div class="fancy-header">{{ category.name }}</div>
-    {% if info %}
-    <div class="cool-text-container">
-        {{ info }}
-    </div>
-    {% endif %}
+    <div class="fancy-header">{{ category.header }}</div> 
+    <div id="{{ category.id }}" class="card-view"></div>
 </div>
+{% endfor %}
 {% endblock %}
