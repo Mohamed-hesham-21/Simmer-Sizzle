@@ -160,7 +160,6 @@ def getRecipeFromRequest(request):
         step.index = index
         step.recipe = recipe
         stepList.append(step)
-    print(data["recipe"]["image"])
     return [recipe, ingredientList, stepList]
 
 def getPage(items, pageNum, limit=RECIPE_LIMIT):
@@ -177,11 +176,15 @@ def defaultContext(dic={}):
     if dic.get("API"):
         dic["categories"] = []
         for category in dic["API"]:
-            dic["categories"].append({
+            cat = {
                 "header": category["header"],
                 "id": category["id"],
-            })
+            }
             del category["header"]
+            if category.get("url"):
+                cat["url"] = category["url"]
+                del category["url"]
+            dic["categories"].append(cat)
         
     return dic;
 
@@ -330,13 +333,12 @@ def cuisine_view(request, id):
         }
     ]
 
-    return render(request, "RecipeFinder/index.html", {
+    return render(request, "RecipeFinder/index.html", defaultContext({
         "linkHistory": linkHistory,
         "header": cuisine.name,
         "info": cuisine.info,
-        "cuisines": models.Cuisine.objects.all(),
         "API": API,
-    })
+    }))
 
 def course_view(request, id, course):
     assert course in models.Recipe.courses()
