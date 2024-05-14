@@ -147,7 +147,6 @@ function saveRecipe(edit=false) {
             displayErrorMessage(msg);
             return false;
         }
-        const recipe_id = getRecipeID();
         let imageInput = document.querySelector("#input-image");
         try {
             const reader = new FileReader();
@@ -155,10 +154,10 @@ function saveRecipe(edit=false) {
             reader.addEventListener("load" , () => {
                 recipe.image = reader.result.split(",")[1];
             });
-            sendRecipe(recipe, '/api/' + (edit ? `recipes/${recipe_id}/edit` : 'add_recipe'));
+            sendRecipe(recipe, '/api/' + (edit ? `recipes/${getRecipeID()}/edit` : 'add_recipe'));
         }
         catch(err) {
-            sendRecipe(recipe);
+            sendRecipe(recipe, '/api/' + (edit ? `recipes/${getRecipeID()}/edit` : 'add_recipe'));
         }
         return false;
     }
