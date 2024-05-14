@@ -13,13 +13,15 @@
     {{ info }}
 </div>
 {% endif %}
-{% for category in API %}
+{% for category in categories %}
 <div class="category-container">
     <div class="row">
         <div class="fancy-header">{{ category.header }}</div> 
+        {% if category.url %}
         <a href="{{ category.url }}">
             <button class="bland-button space">See more</button>
         </a>
+        {% endif %}
     </div>
     <div id="{{ category.id }}" class="card-view"></div>
 </div>

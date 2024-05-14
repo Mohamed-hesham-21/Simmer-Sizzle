@@ -12,14 +12,18 @@
     <div class="cool-text-container" id="Recipe_Description">
         {{ recipe.description }}
     </div>
+    {% if user.is_authenticated %}
     <div class="recipe-buttons-container">
-        <button id="recipe-save-button" class="cool-button space">Save</button>
+        <button id="recipe-save-button" class="cool-button space">{% if recipe.liked %}Unsave{% else %}Save{% endif %}</button>
+        {% if user.isAdmin %}
         <a href="{% url 'edit_recipe' recipe.id %}">
             <button id="recipe-edit-button" class="bland-button">Edit</button>
         </a>
+        {% endif %}
     </div>
+    {% endif %}
     <div class="recipe-img">
-        <img id="recipe-image" src="{% if recipe.image %} {{ recipe.image.url }} {% else %} {% static 'RecipeFinder/food.jpg' %} {% endif %}" width="750" height="400">
+        <img id="recipe-image" src="{% if recipe.image %}{{ recipe.image.url }}{% else %}{% static 'RecipeFinder/food.jpg' %}{% endif %}" width="750" height="400">
     </div>
 </div>
 <div class="info-container">

@@ -751,3 +751,237 @@ a.norm-link:visited {
     object-fit: contain;
     border-radius: 20px;
 }
+
+.info-heading {
+    text-align: left;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.info-container {
+    width: 35%;
+    position: relative;
+    border: 1px solid #bbb;
+    border-top: 10px solid rgba(255, 69, 0, 0.9);
+    border-radius: 10px;
+    margin: 50px;
+    padding: 20px;
+    font-size: 14pt;
+    background-color: rgb(255, 249, 249);
+}
+
+.info-item {
+    margin: 10px;
+    padding: 0px 10px;
+    text-align: center;
+}
+
+.info-title {
+    font-size: 15pt;
+    font-weight: 650;
+}
+
+.time-item {
+    padding: 0px 45px;
+
+}
+
+.info-header {
+    font-size: 28px;
+    font-weight: 750;
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+hr {
+    margin: 20px;
+} 
+
+.recipe-container {
+    max-width: 60%;
+    margin: 10px 40px;
+}
+
+#link-history {
+    font-size: 17px;
+    font-family: cursive;
+    padding: 10px;
+    margin: 10px 0px;
+}
+
+#link-history > li {
+    all: unset;
+}
+
+#link-history > li + li::before{
+    content: ">";
+}
+
+.recipe-buttons-container {
+    margin: 0px 0px 20px 10px;
+}
+
+.recipe-img {
+    width: fit-content;
+}
+
+.recipe-img > img {
+    border-radius: 10px;
+}
+
+.recipe-info-container {
+    font-size: 14pt;
+    position: relative;
+    display : inline-block;
+    justify-content: space-around;
+    padding: 20px;
+    display: block;
+}
+
+.ingredient-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ingredient-list li {
+    width: fit-content;
+    display: flex;
+    color:black;
+    font-size: 20px ;
+    font-family: sans-serif;
+    align-items: center;
+    padding: 5px;
+}
+
+.ingredient-list span
+{
+    margin-left: 15px;
+}
+
+.homepage-body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    background-image: url(sizzling.jpg);
+    background-size: cover;
+    background-color: black;
+  }
+
+  .homepage-container {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    background-image: url(sizzling.jpg);
+    background-size: cover;
+    background-color: black;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: rgb(0, 0, 0, 0.8);
+  }
+
+  .homepage-image-container {
+    width: 300px;
+    height: 300px;
+    position: relative;
+  }
+
+  .homepage-image{
+    width: 100%;
+    height: auto;
+    position: absolute;
+    right: 0;
+    transition: transform 0.5s ease;
+    margin-right: 350px;
+  }
+
+  .homepage-image-container:hover .homepage-image {
+    transform: rotateY(180deg);
+  }
+
+  .homepage-text {
+    font-family: "Acme", sans-serif;
+    text-align: center; 
+    margin-top: 20px;
+    margin-left: 50px;
+    font-weight: bold;
+    font-size: 50px;
+    color: wheat;
+  }
+
+  .homepage-text p {
+    font-size: 40px;
+  }
+
+  .sizzle {
+    font-family: "Pacifico", cursive;
+    font-style: normal;
+    color: orangered;
+    font-weight: bold;
+    font-size: 55px;
+  }
+
+  .homepage-signup-button, .homepage-browse-button {
+    background-color: orangered;
+    color: white;
+    padding: 15px 25px;
+    border: none;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+
+  .homepage-signup-button:hover, .homepage-browse-button:hover {
+    transform: scale(1.1);
+  }
+
+  .button-container {
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    margin-top: 20px; 
+  }
+
+  .homepage-signup-button {
+    margin-right: 35px;
+  }
+
+  .homepage-browse-button {
+    background-color: grey;
+  }
+
+.homepage-about-us-refer {
+position: absolute;
+bottom: 0;
+left: 50%;
+transform: translateX(-50%);
+text-align: center;
+display: flex;
+align-items: center; 
+color: wheat;
+font-size: x-large;
+font-family:Georgia, 'Times New Roman', Times, serif;
+}
+
+.about-us-button {
+background-color: orangered;
+color: white;
+padding: 10px 20px;
+border: none;
+font-size: 16px;
+font-weight: bold;
+border-radius: 5px;
+cursor: pointer;
+transition: transform 0.3s ease;
+margin-left: 10px; 
+}
+
+.about-us-button:hover {
+transform: scale(1.1);
+}

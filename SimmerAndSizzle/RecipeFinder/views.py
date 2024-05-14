@@ -15,14 +15,22 @@ from . import models
 CATEGORY_LIMIT = 3
 RECIPE_PER_CATEGORY_LIMIT = 10
 RECIPE_LIMIT = 10
-# RECOMMENDATIONS_LIMIT = 5
 
-def exceptionHandled(fn):
+# Some decorators
+
+def exception_handle(fn):
     def wrapper(*args, **kwargs):
         try:
             return fn(*args, **kwargs)
         except Exception:
             return HttpResponseRedirect(reverse('index'))
+    return wrapper
+
+def admin_required(fn):
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.isAdmin:
+            return fn(request, *args, **kwargs)
+        return HttpResponseRedirect(reverse('index'))
     return wrapper
 
 # Forms to handle invalid data
@@ -165,12 +173,98 @@ def defaultContext(dic={}):
     dic["cuisines"] = models.Cuisine.objects.all()
     dic["courses"] = models.Recipe.courses()
     dic["units"] = models.Unit.objects.all()
+    
+    if dic.get("API"):
+        dic["categories"] = []
+        for category in dic["API"]:
+            dic["categories"].append({
+                "header": category["header"],
+                "id": category["id"],
+            })
+            del category["header"]
+        
     return dic;
 
-# views
+def processQuery(allRecipes, query):
+    recipes = models.Recipe.objects.none()
+    recipes |= allRecipes.filter(name__contains=f"{query}")
+    recipes |= allRecipes.filter(course__contains=f"{query}")
+    for recipe in allRecipes.all():
+        match = False
+        if query in recipe.cuisine.name.lower():
+            match = True
+        for ingredient in recipe.ingredients.all():
+            if query in ingredient.name.lower():
+                match = True
+        if match:
+            recipes |= allRecipes.filter(id=recipe.id)
+    return recipes
+
+def getRecipeRecommendations(recipes, recipe):
+    return recipes.filter(cuisine=recipe.cuisine, course=recipe.course).exclude(id=recipe.id)
+
+def getPersonalizedRecommendations(recipes, user):
+    allRecipes = []
+    for view in user.views.order_by("-timestamp")[:10]:
+        allRecipes += list(getRecipeRecommendations(recipes, view.recipe))
+    
+    return sorted(allRecipes, key=lambda recipe: allRecipes.count(recipe), reverse=True)
+
+def getTrendingCuisine():
+    cuisineViews = {}
+    for view in models.View.objects.order_by("-timestamp")[:1000]:
+        cuisineID = view.recipe.cuisine.id
+        if not cuisineViews.get(cuisineID):
+            cuisineViews[cuisineID] = 0
+        cuisineViews[cuisineID] += 1
+    trendingCuisine = None
+    maxViews = 0
+    for cuisine, views in cuisineViews.items():
+        if views > maxViews:
+            trendingCuisine = cuisine
+    return models.Cuisine.objects.get(id=trendingCuisine) if trendingCuisine else None
+
+def getFeed(user):
+    API = []
+    API.append({
+        "header": "Trending",
+        "request": {"order_by": "popularity"},
+        "id": "trending-container",
+    })
+    cuisine = getTrendingCuisine()
+    if cuisine:
+        API.append({
+            "header": cuisine.name,
+            "request": {"cuisine": cuisine.id, "order_by": "popularity"},
+            "id": f"trending-cuisine-{cuisine.name}",
+        })
+    if user.is_authenticated:
+        API.append({
+        "header": "Just for you",
+        "request": {"personalized": 1},
+        "id": f"personalized-container-{user.username}",
+        })
+    querySet = models.Cuisine.objects.all()
+    if querySet.exists():
+        cuisine = choice(list(querySet))
+        course = choice(models.Recipe.courses())
+        API.append({
+            "header": f"Discover: {cuisine.name} {course}",
+            "request": {"cusisine": 1, "course": course},
+            "id": f"random-container-{cuisine.name}-{course}",
+        })
+    return API
+
+# Views
 
 def index(request):
-    return render(request, "RecipeFinder/index.html", defaultContext())
+    visited = request.session.get('visited', False)
+    request.session["visited"] = True
+    if not visited:
+        return render(request, "RecipeFinder/home.html", defaultContext())
+    return render(request, "RecipeFinder/index.html", defaultContext({
+        "API": getFeed(request.user),
+    }))
 
 def login_view(request):
     return render(request, "RecipeFinder/login.html", defaultContext())
@@ -178,6 +272,7 @@ def login_view(request):
 def register_view(request):
     return render(request, "RecipeFinder/register.html", defaultContext())
 
+@login_required(login_url='login')
 def logout_view(request):
     auth.logout(request)
     return HttpResponseRedirect(reverse("index"))
@@ -185,23 +280,30 @@ def logout_view(request):
 def about_view(request):
     return render(request, "RecipeFinder/about.html", defaultContext())
 
-def favourites_view(request):
+def recipes_view(request):
     return render(request, "RecipeFinder/category.html", defaultContext({
-        "header": "Favourites",
-        "API": 
-        [
-            {
-                "request": {
-                    "favourites": 1,
-                },
-                "id": "favourites-container",
-            }
-        ]
+        "API": [{
+            "header": "All recipes",
+            "request": {"order_by": "date_added",},
+            "id": "all-recipes-container",
+        }]
     }))
 
+@login_required(login_url='login')
+def favourites_view(request):
+    return render(request, "RecipeFinder/category.html", defaultContext({
+        "API": [{
+            "header": "Favourites",
+            "request": {"favourites": 1,},
+            "id": "favourites-container",
+        }]
+    }))
+
+@admin_required
 def add_recipe_view(request):
     return render(request, "RecipeFinder/new_recipe.html", defaultContext())
 
+@admin_required
 def edit_recipe_view(request, id):
     return render(request, "RecipeFinder/edit_recipe.html", defaultContext({
         "recipe": models.Recipe.objects.get(id=id),
@@ -252,20 +354,45 @@ def course_view(request, id, course):
     ]
     return render(request, "RecipeFinder/category.html", defaultContext({
         "linkHistory": linkHistory,
+        "API": [{
+            "header": "",
+            "request": {
+                "cuisine": id,
+                "course": course,
+            },
+            "id": f"{cuisine.name}-{course}-main-container",
+            }]
+    }))
+
+def chef_view(request, username):
+    user = models.User.objects.get(username=username)
+    return render(request, "RecipeFinder/category.html", defaultContext({
+        "API": [{
+            "header": f"{user.username}'s recipes",
+            "request": {"favourites": 1,},
+            "id": "favourites-container",
+        }]
+    }))
+
+def search_view(request):
+    try:
+        query = request.GET["q"];
+        assert len(query) > 0;
+    except Exception:
+        return HttpResponseRedirect(reverse("index"));
+    return render(request, "RecipeFinder/category.html", defaultContext({
+        "past_query": query,
         "API": 
         [
             {
+                "header": f"Search: {query}",
                 "request": {
-                    "cuisine": id,
-                    "course": course,
+                    "query": query
                 },
-                "id": f"{cuisine.name}-{course}-main-container",
+                "id": f"search-results-container",
             }
         ]
     }))
-
-def recipes_view(request):
-    return render(request, "RecipeFinder/category.html", defaultContext())
 
 def recipe_view(request, id):
     recipe = models.Recipe.objects.get(id=id)
@@ -289,16 +416,16 @@ def recipe_view(request, id):
     return render(request, "RecipeFinder/recipe.html", defaultContext({
         "linkHistory": linkHistory,
         "recipe": recipe,
-        "API": 
-        [
-            {
-                "request": {
-                    "recipeToRecommend": id
-                },
-                "id": "recommendations-container"
-            }
-        ]
+        "API": [{
+            "header": "",
+            "request": {
+                "recipeToRecommend": id
+            },
+            "id": "recommendations-container"
+            }],
     }))
+
+# API
 
 @csrf_exempt
 def register(request):
@@ -381,51 +508,39 @@ def recipes(request):
         except models.Recipe.DoesNotExist:
             return JsonResponse({"error": "Recipe doesn't exist"}, status=404)
 
-        recipes = recipes.filter(cuisine=recipe.cuisine, course=recipe.course).exclude(id=data["recipeToRecommend"])
+        recipes = getRecipeRecommendations(recipes, recipe)
 
-    # if not recipes:
-    #     recipes = models.Recipe.objects.all()
+    if data.get("query"):
+        recipes = processQuery(recipes, data["query"].strip().lower());
 
-    
     recipeList = []
     if data.get("favourites"):
         response = checkRequest(request, post=False)
         if response is not None:
             return response
-        for recipe in recipes:
-            if recipe.checkLike(request.user):
-                recipeList.append(recipe)
+        for like in request.user.likes.order_by("-timestamp"):
+            recipeList.append(like.recipe)
+    elif data.get("personalized"):
+        response = checkRequest(request, post=False)
+        if response is not None:
+            return response
+        recipeList = list(getPersonalizedRecommendations(recipes, request.user))
     else:
         recipeList = list(recipes)
-    recipeList.sort(key=lambda recipe: recipe.likesCount(), reverse=True)
+
+    
+    if data.get("order_by") and data["order_by"] == "popularity":
+        recipeList.sort(key=lambda recipe: recipe.popularityKey(), reverse=True)
+    elif data.get("favourites") is None:
+        recipeList.sort(key=lambda recipe: recipe.dateAdded, reverse=True)
+    
+    
     recipeList = getRecipeCardList(recipeList, request.user)
     pageNum = data["page"] if data.get("page") else 1
     try:
         recipeList = getPage(recipeList, pageNum)
     except AssertionError:
         return JsonResponse({"error": "Page doesn't exist"}, status=400)
-    return JsonResponse({"recipeList": recipeList}, status=200)
-
-def search(request):
-    query = request.GET["q"].lower()
-    recipes = models.Recipe.objects.none()
-    recipes |= models.Recipe.objects.filter(name__contains=f"%{query}%")
-    recipes |= models.Recipe.objects.filter(course__contains=f"%{query}%")
-    for recipe in models.Recipe.objects.all():
-        match = False
-        if query in recipe.cuisine.name.lower():
-            match = True
-        for ingredient in recipe.ingredients.all():
-            if query in ingredient.ingredient.lower():
-                match = True
-        if match:
-            recipes |= models.Recipe.objects.filter(id=recipe.id)
-    recipeList = getRecipeCardList(recipes, request.user)
-    pageNum = request.GET["page"] if request.GET.get("page") else 1
-    try:
-        recipeList = getPage(recipeList, pageNum)
-    except AssertionError:
-        return JsonResponse({"error": "Page doesn't exist"})
     return JsonResponse({"recipeList": recipeList}, status=200)
 
 @csrf_exempt
@@ -444,6 +559,7 @@ def like_recipe(request, id):
     models.Like.objects.create(user=request.user, recipe=recipe)
     return JsonResponse({"success": "Recipe added to favourites successfully"}, status=200)
 
+@csrf_exempt 
 def edit_recipe(request, id):
     response = checkRequest(request, admin=False)
     if response is not None:
@@ -466,6 +582,7 @@ def edit_recipe(request, id):
         step.save()
     return JsonResponse({"recipe_id": recipe.id}, status=200)
 
+@csrf_exempt    
 def delete_recipe(request, id):
     response = checkRequest(request, admin=True)
     if response is not None:

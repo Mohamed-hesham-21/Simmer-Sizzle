@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %} Simmer & Sizzle {% endblock %}</title>
+        <link rel="shortcut icon" href="{% static 'RecipeFinder/icon.png' %}">
+        <link rel="stylesheet" href="{% static 'RecipeFinder/styles.css' %}">
+        {% block style %}{% endblock %}
+        <script src="{% static 'RecipeFinder/script.js' %}"></script>
+        {% block scripts %}{% endblock %}
+        {% csrf_token %}
+    </head>
+    <body>
+        {% if API %}
+        {{ API | safe | json_script:"API" }}
+        {% endif %}
+        {% if recipe %}
+        {{ recipe.id | json_script:"recipe_id" }}
+        {% endif %}
+        <nav class="navbar-container">
+            <div class="navbar row">
+                <a href="{% url 'index' %}" class="navbar-logo">
+                    <img src="{% static 'RecipeFinder/logo.png' %}" width="280">
+                </a>
+                <div class="navbar-items row">
+                    <a href="{% url 'recipes' %}" class="navbar-link-item norm-link">Recipes</a>
+                    <div class="drop-down-menu">
+                        <a class="drop-down-button navbar-link-item norm-link">Cuisines</a>
+                        <div id="cuisine-list" class="drop-down-options">
+                            {% for cuisine in cuisines %}
+                            <a href="{% url 'cuisine' cuisine.id %}" class="navbar-link-item norm-link">{{ cuisine.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <a href="{% url 'about' %}" class="navbar-link-item norm-link">About Us</a>
+                    <div class="drop-down-menu">
+                        {% if user.is_authenticated %}
+                        <a class="drop-down-button navbar-link-item norm-link">{{ user.username }}</a>
+                        <div class="drop-down-options">
+                            {% if user.isAdmin %}
+                            <a href="{% url 'chef' user.username %}" class="navbar-link-item norm-link">Your Recipes</a>
+                            <a href="{% url 'add_recipe' %}" class="navbar-link-item norm-link">Add Recipe</a>
+                            {% endif %}
+                            <a href="{% url 'favourites' %}" class="navbar-link-item norm-link">Favourites</a>
+                            <a href="{% url 'logout' %}" class="navbar-link-item norm-link">Logout</a>
+                        </div>
+                        {% else %}
+                        <a href="{% url 'register' %}" class="navbar-link-item norm-link">Register</a>
+                        <a href="{% url 'login' %}" class="navbar-link-item norm-link">Login</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <form action="{% url 'search' %}" method="get">
+                    <div class="navbar-search row">
+                        <input name="q" type="text" class="cool-form form-peach" placeholder="Search" value="{{ past_query }}">
+                        <button type="submit" class="cool-button button-peach"></button>
+                    </div>
+                </form>
+            </div>
+        </nav>
+
+        {% block body %}
+        {% endblock %}
+    </body>
+</html>

@@ -1,18 +1,9 @@
-// document.addEventListener("DOMContentLoaded", () => {
-//     if (document.querySelector("button.card-fav-button")) {
-//         document.querySelectorAll("button.card-fav-button").forEach((button) => {
-//             button.onclick = () => toggleLike(button);
-//         });
-//     }
-//     let container = document.querySelector("#cuisine-list");
-//     const cuisines = cuisineNames();
-//     let idx = 0;
-//     cuisines.forEach(cuisine => {
-//         container.innerHTML += `
-//         <a href="cuisine.html?id=${idx++}" class="navbar-link-item norm-link"> ${cuisine} </a>
-//         `;
-//     });
-// });
+document.addEventListener("DOMContentLoaded", () => {
+    if (document.querySelector("#recipe-save-button")) {
+        const button = document.querySelector("#recipe-save-button");
+        button.onclick = () => toggleSave(button);
+    }
+});
 
 function Recipe(name, description, cuisine, course, prepTime, cookTime, servings, carbs, protein, fats, ingredients=[], steps=[]) {
     this.name = name;
@@ -40,24 +31,27 @@ function Ingredient(name, quantity, unit) {
     this.unit = unit;
 }
 
-function toggleLike(button) {
+async function toggleLike(button) {
+    await fetch(`${window.location.origin}/api/recipes/${button.dataset.id}/like`, {
+        method: "POST",
+    }).then(response => response.json()).then(response => {
+        if ("error" in response)
+            window.location.href = window.location.origin + "/login";
+    });
     if (button.classList.contains("card-fav-button-filled"))
         button.classList.remove("card-fav-button-filled");
     else
         button.classList.add("card-fav-button-filled");
-    fetch(`${window.location.origin}/api/recipes/${button.dataset.id}/like`, {
-        method: "POST",
-    });
 }
 
-function toggleSave(button) {
-    let recipes = JSON.parse(localStorage.getItem("recipes"));
-    if (button.innerHTML == "Save")
-        button.innerHTML = "Unsave", recipes[button.dataset.id].liked = true;
-    else
-        button.innerHTML = "Save", recipes[button.dataset.id].liked = false;
-
-    localStorage.setItem("recipes", JSON.stringify(recipes));
+async function toggleSave(button) {
+    await fetch(`${window.location.origin}/api/recipes/${getRecipeID()}/like`, {
+        method: "POST",
+    }).then(response => response.json()).then(response => {
+        if ("error" in response)
+            window.location.href = window.location.origin + "/login";
+    });
+    button.innerHTML = (button.innerHTML == 'Save' ? 'Unsave' : 'Save');
 }
 
 function addStep() {
@@ -145,7 +139,7 @@ function getRecipeFromForm() {
     return recipe;
 }
 
-function addRecipe() {
+function saveRecipe(edit=false) {
     try {
         let recipe = getRecipeFromForm();
         let msg = validateRecipe(recipe);
@@ -153,7 +147,7 @@ function addRecipe() {
             displayErrorMessage(msg);
             return false;
         }
-        
+        const recipe_id = getRecipeID();
         let imageInput = document.querySelector("#input-image");
         try {
             const reader = new FileReader();
@@ -161,7 +155,7 @@ function addRecipe() {
             reader.addEventListener("load" , () => {
                 recipe.image = reader.result.split(",")[1];
             });
-            sendRecipe(recipe);
+            sendRecipe(recipe, '/api/' + (edit ? `recipes/${recipe_id}/edit` : 'add_recipe'));
         }
         catch(err) {
             sendRecipe(recipe);
@@ -174,9 +168,8 @@ function addRecipe() {
     return false;
 }
 
-function sendRecipe(recipe) {
-    console.log(recipe);
-    fetch('api/add_recipe', {
+function sendRecipe(recipe, url) {
+    fetch(window.location.origin + url, {
         method: 'POST',
         headers: {
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -196,45 +189,13 @@ function sendRecipe(recipe) {
     return false;
 }
 
-function editRecipe(id) {
-    try {
-        let recipes = JSON.parse(localStorage.getItem("recipes"));
-        let recipe = getRecipeFromForm();
-        let msg = validateRecipe(recipe);
-        if (msg) {
-            displayErrorMessage(msg);
-            return false;
-        }
-        let image;
-        let getImage = document.querySelector("#input-image");
-        const reader = new FileReader();
-        try {
-            reader.readAsDataURL(getImage.files[0]);
-            reader.addEventListener("load" , () => {
-            image = reader.result;
-            recipe.image = image;
-            recipe.id = id;
-            recipes[id] = recipe;
-            localStorage.setItem("recipes", JSON.stringify(recipes));
-        });
-        }
-        catch(err) {
-            recipe.image = recipes[id].image;
-            recipe.id = id;
-            recipes[id] = recipe;
-            localStorage.setItem("recipes", JSON.stringify(recipes));
-        }
-    }
-    catch(err) {
-        displayErrorMessage(err.message);
-    }
-    return false;
-}
-
-function deleteRecipe(id) {
-    let recipes = JSON.parse(localStorage.getItem("recipes"));
-    recipes[id].deleted = true;
-    localStorage.setItem("recipes", JSON.stringify(recipes));
+function deleteRecipe() {
+    const recipe_id = getRecipeID();
+    fetch(window.location.origin + `/api/recipes/${recipe_id}/delete`, {
+        method: "POST",
+    }).then(response => response.json()).then(response => {
+        window.location.href = window.location.origin;
+    });
 }
 
 function validateRecipe(recipe) {
@@ -458,4 +419,8 @@ class RecipeCardLoader {
             this.container.appendChild(card);
         })
     }
+}
+
+function getRecipeID() {
+    return Number(document.querySelector("#recipe_id").innerHTML);
 }

@@ -6,9 +6,9 @@
 {% endblock %}
 
 {% block main_view %}
-{% for category in API %}
+{% for category in categories %}
 <div class="category-container">
-    <div class="fancy-header">{{ category.header }}</div> 
+    <div class="fancy-header">{{ category.header }}</div>
     <div id="{{ category.id }}" class="card-view"></div>
 </div>
 {% endfor %}

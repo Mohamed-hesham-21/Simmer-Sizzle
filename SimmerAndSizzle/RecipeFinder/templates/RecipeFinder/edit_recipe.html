@@ -1,11 +1,17 @@
 {% extends 'RecipeFinder/new_recipe.html' %}
 {% load static %}
+
+{% block scripts %}
+<script src="{% static 'RecipeFinder/new_recipe.js' %}"></script>
+<script src="{% static 'RecipeFinder/edit_recipe.js' %}"></script>
+{% endblock %}
+
 {% block name %}{{ recipe.name }}{% endblock %}
 {% block description %}{{ recipe.description }}{% endblock %}
 
-{% if recipe.image %}
-    {% block imageURL %} {{ recipe.image.url }} {% endblock %}
-{% endif %}
+
+{% block imageURL %}{% if recipe.image %}{{ recipe.image.url }}{% else %}{% static 'RecipeFinder/cameraicon.png' %}{% endif %}{% endblock %}
+
 
 {% block cookTime %}{{ recipe.cookTime }}{% endblock %}
 {% block prepTime %}{{ recipe.prepTime }}{% endblock %}
@@ -17,7 +23,7 @@
 
 {% block ingredients %}
 {% for ingredient in recipe.getIngredients %}
-    <li data-name="{{ ingredient.ingredient }}" data-quantity="{{ ingredient.quantity }}" data-unit="{{ ingredient.unit.name }}">
+    <li data-name="{{ ingredient.name }}" data-quantity="{{ ingredient.quantity }}" data-unit="{{ ingredient.unit.name }}">
         <span>{{ingredient.quantity}} {{ingredient.unit.name}} of {{ingredient.name}}</span>
         <button></button>
     </li>
@@ -34,7 +40,7 @@
 {% endblock %}
 
 {% block buttons %}
-<button type="button" class="danger-button bg-fnt space">Delete</button>
+<button type="button" class="danger-button bg-fnt space" id="delete-recipe-button">Delete</button>
 <button type="button" class="bland-button bg-fnt space">Cancel</button>
 <button type="submit" class="cool-button bg-fnt space">Edit</button>
 {% endblock %}

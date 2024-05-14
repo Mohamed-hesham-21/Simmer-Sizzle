@@ -1,9 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // setupRecipeForm();
     document.querySelector("#new-step-button").onclick = addStep;
     document.querySelector("#new-ingredient-button").onclick = addIngredient;
     
-    document.querySelector("#new-recipe-form").onsubmit = addRecipe;
+    document.querySelector("#new-recipe-form").onsubmit = () => saveRecipe();
     document.getElementById('input-image').addEventListener('change', function() {
         const file = this.files[0];
         if (file) {

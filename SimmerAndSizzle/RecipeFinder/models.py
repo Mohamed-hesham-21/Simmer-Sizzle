@@ -55,7 +55,7 @@ class Recipe(models.Model):
         return self.name
 
     def popularityKey(self):
-        return self.likesCount() / self.viewsCount()
+        return self.likesCount() / self.viewsCount() if self.viewsCount() > 0 else 0
 
     @classmethod
     def trending(cls):
@@ -70,14 +70,6 @@ class Recipe(models.Model):
             coursesList.append(course[0])
         return coursesList
 
-    @classmethod
-    def favourites(cls, user):
-        recipes = []
-        for recipe in cls.objects.all():
-            if recipe.checkLike(user):
-                recipes.append(recipe)
-        return recipes
-
     def totalTime(self):
         return self.prepTime + self.cookTime
     
@@ -87,11 +79,11 @@ class Recipe(models.Model):
         return 4 * self.carbs + 4 * self.protein + 9 * self.fats
     
     def checkLike(self, user):
-        return True if user.likes.filter(recipe=self) else False
+        return user.is_authenticated and user.likes.filter(recipe=self).exists()
 
     def addView(self, user):
-        if self.views.filter(user=user) is None:
-            View.objects.create(user, self)
+        if not self.views.filter(user=user).exists():
+            View.objects.create(user=user, recipe=self)
 
     def like(self, user):
         if not self.likes.filter(user=user).exists():
