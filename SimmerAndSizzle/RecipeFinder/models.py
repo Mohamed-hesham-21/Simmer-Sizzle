@@ -37,7 +37,7 @@ class Unit(models.Model):
 
 class Recipe(models.Model):
     courses_pairs = [("Appetizers", "Appetizers"), ("Maincourse", "Maincourse"), ("Dessert", "Dessert")]
-    author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="recipes", validators=[adminValidator])
+    chef = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name="recipes", validators=[adminValidator])
     name = models.CharField(max_length=100, validators=[alpha])
     description = models.TextField(max_length=1000)
     course = models.CharField(max_length=25, choices=courses_pairs)

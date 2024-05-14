@@ -51,7 +51,13 @@ async function toggleSave(button) {
         if ("error" in response)
             window.location.href = window.location.origin + "/login";
     });
-    button.innerHTML = (button.innerHTML == 'Save' ? 'Unsave' : 'Save');
+    let diff = 1;
+    if (button.innerHTML == 'Save')
+        button.innerHTML = 'Unsave';
+    else
+        button.innerHTML = 'Save', diff *= -1;
+    let countContainer = document.querySelector("#likes-count");
+    countContainer.innerHTML = Number(countContainer.innerHTML) + diff;
 }
 
 function addStep() {
@@ -392,7 +398,7 @@ class RecipeCardLoader {
             if ("recipeList" in response)
                 this.displayCards(response["recipeList"]);
             else
-                this.cont = false;
+                console.log(response), this.cont = false;
         });
         this.recipeAPI["request"]["page"]++;
     }

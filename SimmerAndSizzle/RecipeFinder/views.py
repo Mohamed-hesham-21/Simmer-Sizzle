@@ -138,7 +138,7 @@ def getRecipeFromRequest(request):
 
 
     recipe = recipeForm.save(commit=False)
-    recipe.author = request.user
+    recipe.chef = request.user
     ingredientList = []
     stepList = []
 
@@ -371,8 +371,8 @@ def chef_view(request, username):
     return render(request, "RecipeFinder/category.html", defaultContext({
         "API": [{
             "header": f"{user.username}'s recipes",
-            "request": {"favourites": 1,},
-            "id": "favourites-container",
+            "request": {"chef": user.username,},
+            "id": f"{user.username}-recipes-container",
         }]
     }))
 
@@ -492,10 +492,10 @@ def add_recipe(request):
 def recipes(request):
     data = json.loads(request.body)
     recipes = models.Recipe.objects.all()
-    if data.get("author"):
-        if not models.User.objects.filter(username=data["author"]).exists():
+    if data.get("chef"):
+        if not models.User.objects.filter(username=data["chef"]).exists():
             return JsonResponse({"error": "user not found"})
-        recipes = recipes.filter(user=models.User.objects.get(username=data["author"]))
+        recipes = recipes.filter(chef=models.User.objects.get(username=data["chef"]))
     if data.get("cuisine"):
         if not models.Cuisine.objects.filter(id=data["cuisine"]):
             return JsonResponse({"error": "cuisine doesn't exist"})
@@ -593,7 +593,7 @@ def delete_recipe(request, id):
         return JsonResponse({"error": "Recipe doesn't exist"}, status=400)
     
     recipe = models.Recipe.objects.get(id=id)
-    # if recipe.author != request.user:
+    # if recipe.chef != request.user:
     #     return JsonResponse({"error": "You can't delete a recipe you didn't create"}, status=403)
     recipe.delete()
     return JsonResponse({"success": "Recipe removed successufully"}, status=200)
