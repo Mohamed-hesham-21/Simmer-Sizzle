@@ -1,20 +1,20 @@
 import json
-from django.templatetags.static import static
-from django.contrib import auth
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import render
-from django.http import HttpResponseRedirect, JsonResponse
-from django.urls import reverse
-from django import forms
-from random import choice
-from django.core.paginator import Paginator
-from django.core.files.base import ContentFile
+from django.templatetags.static import static # type: ignore
+from django.contrib import auth # type: ignore
+from django.contrib.auth.decorators import login_required # type: ignore
+from django.views.decorators.csrf import csrf_exempt # type: ignore
+from django.shortcuts import render # type: ignore
+from django.http import HttpResponseRedirect, JsonResponse # type: ignore
+from django.urls import reverse # type: ignore
+from django import forms # type: ignore
+from random import choice 
+from django.core.paginator import Paginator # type: ignore
+from django.core.files.base import ContentFile # type: ignore
 
 from . import models
 import base64
 from io import BytesIO
-from PIL import Image
+from PIL import Image # type: ignore
 import os
 # Create your views here.
 
@@ -139,16 +139,16 @@ def getRecipeFromRequest(request):
     missingKey = checkKeys(data["recipe"], list(NewRecipeForm.Meta.fields) + ["ingredients", "steps"])
     if missingKey is not None:
         return JsonResponse({"error": f"Missing {missingKey}."}, status=400)
-    # handing recipe image
-    # data['recipe']['image'] =  base64_file(data = data['recipe']['image'])
-   # done handling
+    
     recipeForm = NewRecipeForm(data["recipe"])
     if not recipeForm.is_valid():
         return JsonResponse({"error": checkFormErrors(recipeForm)[0]}, status=400)
 
     recipe = recipeForm.save(commit=False)
+
     recipe.image = (base64_file(data = data['recipe']['image']))
     recipe.author = request.user
+    recipe.chef = request.user
     ingredientList = []
     stepList = []
 
@@ -170,7 +170,6 @@ def getRecipeFromRequest(request):
         step.index = index
         step.recipe = recipe
         stepList.append(step)
-    print(data["recipe"]["image"])
     return [recipe, ingredientList, stepList]
 
 def getPage(items, pageNum, limit=RECIPE_LIMIT):
@@ -187,11 +186,15 @@ def defaultContext(dic={}):
     if dic.get("API"):
         dic["categories"] = []
         for category in dic["API"]:
-            dic["categories"].append({
+            cat = {
                 "header": category["header"],
                 "id": category["id"],
-            })
+            }
             del category["header"]
+            if category.get("url"):
+                cat["url"] = category["url"]
+                del category["url"]
+            dic["categories"].append(cat)
         
     return dic;
 
@@ -340,13 +343,12 @@ def cuisine_view(request, id):
         }
     ]
 
-    return render(request, "RecipeFinder/index.html", {
+    return render(request, "RecipeFinder/index.html", defaultContext({
         "linkHistory": linkHistory,
         "header": cuisine.name,
         "info": cuisine.info,
-        "cuisines": models.Cuisine.objects.all(),
         "API": API,
-    })
+    }))
 
 def course_view(request, id, course):
     assert course in models.Recipe.courses()
@@ -379,8 +381,8 @@ def chef_view(request, username):
     return render(request, "RecipeFinder/category.html", defaultContext({
         "API": [{
             "header": f"{user.username}'s recipes",
-            "request": {"favourites": 1,},
-            "id": "favourites-container",
+            "request": {"chef": user.username,},
+            "id": f"{user.username}-recipes-container",
         }]
     }))
 
@@ -500,10 +502,10 @@ def add_recipe(request):
 def recipes(request):
     data = json.loads(request.body)
     recipes = models.Recipe.objects.all()
-    if data.get("author"):
-        if not models.User.objects.filter(username=data["author"]).exists():
+    if data.get("chef"):
+        if not models.User.objects.filter(username=data["chef"]).exists():
             return JsonResponse({"error": "user not found"})
-        recipes = recipes.filter(user=models.User.objects.get(username=data["author"]))
+        recipes = recipes.filter(chef=models.User.objects.get(username=data["chef"]))
     if data.get("cuisine"):
         if not models.Cuisine.objects.filter(id=data["cuisine"]):
             return JsonResponse({"error": "cuisine doesn't exist"})
@@ -601,7 +603,7 @@ def delete_recipe(request, id):
         return JsonResponse({"error": "Recipe doesn't exist"}, status=400)
     
     recipe = models.Recipe.objects.get(id=id)
-    # if recipe.author != request.user:
+    # if recipe.chef != request.user:
     #     return JsonResponse({"error": "You can't delete a recipe you didn't create"}, status=403)
     recipe.delete()
     return JsonResponse({"success": "Recipe removed successufully"}, status=200)

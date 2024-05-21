@@ -9,8 +9,32 @@
     <div class="category-header" id="Recipe_Name">
         {{ recipe.name }}
     </div>
+    <div class="stats-container">
+        <div class="stat">
+            <div class="stat-data">
+                {{ recipe.viewsCount }}
+            </div>
+            <div class="stat-icon">
+                <img src="{% static 'RecipeFinder/views_icon.png' %}" alt="views">
+            </div>
+        </div>
+        <div class="stat">
+            <div class="stat-data" id="likes-count">
+                {{ recipe.likesCount }}
+            </div>
+            <div class="stat-icon">
+                <img src="{% static 'RecipeFinder/likes_icon.png' %}" alt="likes">
+            </div>
+        </div>
+    </div>
     <div class="cool-text-container" id="Recipe_Description">
         {{ recipe.description }}
+    </div>
+    <div class="chef-container">
+        <span class="by">By</span>
+        <a class="chef cool-link" href="{% url 'chef' recipe.chef %}">
+            <span>{{ recipe.chef }}</span>
+        </a>
     </div>
     {% if user.is_authenticated %}
     <div class="recipe-buttons-container">
