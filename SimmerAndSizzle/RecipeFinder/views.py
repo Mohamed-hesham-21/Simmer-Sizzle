@@ -126,11 +126,11 @@ def getRecipeCardList(recipes, user):
     return recipeList
 
 def base64_file(data, name=None):
-    _format, _img_str = data.split(';base64,')
-    _name, ext = _format.split('/')
+    format, img_str = data.split(';base64,')
+    name, ext = format.split('/')
     if not name:
-        name = _name.split(":")[-1]
-    return ContentFile(base64.b64decode(_img_str), name='{}.{}'.format(name, ext))
+        name = name.split(":")[-1]
+    return ContentFile(base64.b64decode(img_str), name='{}.{}'.format(name, ext))
 
 def getRecipeFromRequest(request):
     data = json.loads(request.body)
