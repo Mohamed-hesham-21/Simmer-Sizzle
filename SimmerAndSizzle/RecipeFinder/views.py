@@ -1,22 +1,21 @@
 import json
-from django.templatetags.static import static # type: ignore
-from django.contrib import auth # type: ignore
-from django.contrib.auth.decorators import login_required # type: ignore
-from django.views.decorators.csrf import csrf_exempt # type: ignore
-from django.shortcuts import render # type: ignore
-from django.http import HttpResponseRedirect, JsonResponse # type: ignore
-from django.urls import reverse # type: ignore
-from django import forms # type: ignore
+from django.templatetags.static import static
+from django.contrib import auth
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render
+from django.http import HttpResponseRedirect, JsonResponse
+from django.urls import reverse
+from django import forms
 from random import choice 
-from django.core.paginator import Paginator # type: ignore
-from django.core.files.base import ContentFile # type: ignore
+from django.core.paginator import Paginator
+from django.core.files.base import ContentFile
 
 from . import models
 import base64
 from io import BytesIO
-from PIL import Image # type: ignore
+from PIL import Image
 import os
-# Create your views here.
 
 CATEGORY_LIMIT = 3
 RECIPE_PER_CATEGORY_LIMIT = 10
@@ -30,6 +29,14 @@ def exception_handle(fn):
             return fn(*args, **kwargs)
         except Exception:
             return HttpResponseRedirect(reverse('index'))
+    return wrapper
+
+def exception_handle_api(fn):
+    def wrapper(*args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        except Exception:
+            return JsonResponse({"error": "Bad Request"}, status=400)
     return wrapper
 
 def admin_required(fn):
@@ -133,7 +140,10 @@ def base64_file(data, name=None):
     return ContentFile(base64.b64decode(img_str), name='{}.{}'.format(name, ext))
 
 def getRecipeFromRequest(request):
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({"error": "Image size is too big"}, status=400);
     if not data.get("recipe"):
         return JsonResponse({"error": "Missing recipe."}, status=400)
     missingKey = checkKeys(data["recipe"], list(NewRecipeForm.Meta.fields) + ["ingredients", "steps"])
@@ -146,8 +156,8 @@ def getRecipeFromRequest(request):
 
     recipe = recipeForm.save(commit=False)
 
-    recipe.image = (base64_file(data = data['recipe']['image']))
-    recipe.author = request.user
+    if data["recipe"]["image"]:
+        recipe.image = (base64_file(data = data['recipe']['image']))
     recipe.chef = request.user
     ingredientList = []
     stepList = []
@@ -199,6 +209,7 @@ def defaultContext(dic={}):
     return dic;
 
 def processQuery(allRecipes, query):
+    query = query.strip().lower()
     recipes = models.Recipe.objects.none()
     recipes |= allRecipes.filter(name__contains=f"{query}")
     recipes |= allRecipes.filter(course__contains=f"{query}")
@@ -294,13 +305,14 @@ def about_view(request):
     return render(request, "RecipeFinder/about.html", defaultContext())
 
 def recipes_view(request):
-    return render(request, "RecipeFinder/category.html", defaultContext({
-        "API": [{
-            "header": "All recipes",
-            "request": {"order_by": "date_added",},
-            "id": "all-recipes-container",
-        }]
-    }))
+    return render(request, "RecipeFinder/recipes.html", defaultContext())
+    # return render(request, "RecipeFinder/category.html", defaultContext({
+    #     "API": [{
+    #         "header": "All recipes",
+    #         "request": {"order_by": "date_added",},
+    #         "id": "all-recipes-container",
+    #     }]
+    # }))
 
 @login_required(login_url='login')
 def favourites_view(request):
@@ -440,6 +452,7 @@ def recipe_view(request, id):
 # API
 
 @csrf_exempt
+@exception_handle_api
 def register(request):
     response = checkRequest(request, auth=False)
     if response is not None:
@@ -466,6 +479,7 @@ def register(request):
     return JsonResponse({"success": "User authenticated successfully"}, status=200)
 
 @csrf_exempt
+@exception_handle_api
 def login(request):
     response = checkRequest(request, auth=False)
     if response is not None:
@@ -483,6 +497,7 @@ def login(request):
     return JsonResponse({"success": "User authenticated successfully"}, status=200)
 
 @csrf_exempt
+@exception_handle_api
 def add_recipe(request):
     response = checkRequest(request, admin=False)
     if response is not None:
@@ -502,18 +517,28 @@ def add_recipe(request):
 def recipes(request):
     data = json.loads(request.body)
     recipes = models.Recipe.objects.all()
+
     if data.get("chef"):
         if not models.User.objects.filter(username=data["chef"]).exists():
             return JsonResponse({"error": "user not found"})
         recipes = recipes.filter(chef=models.User.objects.get(username=data["chef"]))
+
     if data.get("cuisine"):
         if not models.Cuisine.objects.filter(id=data["cuisine"]):
             return JsonResponse({"error": "cuisine doesn't exist"})
         recipes = recipes.filter(cuisine=models.Cuisine.objects.get(id=data["cuisine"]))
+
     if data.get("course"):
-        if data["course"] not in models.Recipe.courses():
-            return JsonResponse({"error": "course doesn't exist"})
-        recipes = recipes.filter(course=data["course"])
+        if isinstance(data["course"], str):
+            if data["course"] not in models.Recipe.courses():
+                return JsonResponse({"error": "course doesn't exist"})
+            recipes = recipes.filter(course=data["course"])
+        else:
+            newRecipes = models.Recipe.objects.none();
+            for course in data["course"]:
+                newRecipes |= recipes.filter(course=course)
+            recipes = newRecipes
+
     if data.get("recipeToRecommend"):
         try:
             recipe = models.Recipe.objects.get(id=data["recipeToRecommend"])
@@ -541,11 +566,13 @@ def recipes(request):
         recipeList = list(recipes)
 
     
-    if data.get("order_by") and data["order_by"] == "popularity":
-        recipeList.sort(key=lambda recipe: recipe.popularityKey(), reverse=True)
-    elif data.get("favourites") is None:
-        recipeList.sort(key=lambda recipe: recipe.dateAdded, reverse=True)
-    
+    if data.get("order_by"):
+        if data["order_by"] == "popularity":
+            recipeList.sort(key=lambda recipe: recipe.popularityKey(), reverse=True)
+        elif data["order_by"] == "alphabetical":
+            recipeList.sort(key=lambda recipe: recipe.name, reverse=True)
+        else:
+            recipeList.sort(key=lambda recipe: recipe.dateAdded, reverse=True)
     
     recipeList = getRecipeCardList(recipeList, request.user)
     pageNum = data["page"] if data.get("page") else 1
@@ -556,6 +583,7 @@ def recipes(request):
     return JsonResponse({"recipeList": recipeList}, status=200)
 
 @csrf_exempt
+@exception_handle_api
 def like_recipe(request, id):
     response = checkRequest(request)
     if response is not None:
@@ -571,7 +599,8 @@ def like_recipe(request, id):
     models.Like.objects.create(user=request.user, recipe=recipe)
     return JsonResponse({"success": "Recipe added to favourites successfully"}, status=200)
 
-@csrf_exempt 
+@csrf_exempt
+@exception_handle_api 
 def edit_recipe(request, id):
     response = checkRequest(request, admin=False)
     if response is not None:
@@ -594,7 +623,8 @@ def edit_recipe(request, id):
         step.save()
     return JsonResponse({"recipe_id": recipe.id}, status=200)
 
-@csrf_exempt    
+@csrf_exempt  
+@exception_handle_api  
 def delete_recipe(request, id):
     response = checkRequest(request, admin=True)
     if response is not None:

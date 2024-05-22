@@ -1,0 +1,52 @@
+{% extends "RecipeFinder/layout.html" %}
+{% load static %}
+
+{% block scripts %}
+<script src="{% static 'RecipeFinder/recipes.js' %}"></script>
+{% endblock %}
+
+{% block main_view %}
+<div class="row">
+    <div class="category-container">
+        <div class="fancy-header">Recipes</div>
+        <div id="filtered-recipes-container" class="card-view"></div>
+    </div>
+    <div class="filter-options-container">
+        <div class="filter-area">
+            <h2><img src="{% static 'RecipeFinder/filter.png' %}" alt="Icon" class="filter-icon"> Filter Options</h2>
+            
+            <div class="filter-option">
+                <div class="filter-option-name">Cuisine:</div>
+                <select id="cuisine">
+                    <option value="" selected>Cuisine</option>
+                    {% for cuisine in cuisines %}
+                    <option value="{{ cuisine.id }}">{{ cuisine.name }}</option>
+                    {% endfor %}
+            </select>
+            </div>
+            <div class="filter-option">
+                <div class="filter-option-name">Course:</div>
+                {% for course in courses %}
+                <div class="filter-area-button-container">
+                    <input class="filter-option-course" type="checkbox" id="option-{{ course }}" data-course="{{ course }}" checked>
+                    <label class="filter-area-check-button" for="option-{{ course }}">{{ course }}</label>
+                </div>
+            {% endfor %}
+            </div>
+            <div class="filter-option">
+                <div class="filter-option-name">Sort By:</div>
+                <select id="sort">
+                    <option selected value="date_added">Date Added</option>
+                    <option value="alphabetical">A-Z</option>
+                    <option value="popularity">Popularity</option>
+                </select>
+            </div>
+            <div class="filter-option">
+                <button id="apply-btn">Apply Filters</button>
+            <button id="reset-btn">Reset</button>
+            </div>
+            
+          </div>
+    </div>
+</div>
+{% endblock %}

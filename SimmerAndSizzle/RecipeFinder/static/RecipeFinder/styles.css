@@ -274,7 +274,7 @@ a.norm-link:visited {
     border-radius: 50%;
     position: relative;
     top: 3px;
-    left: -47px;
+    left: -50px;
     background-color: rgb(255, 110, 57);
     border-color: rgba(0, 0, 0, 0);
 }
@@ -1028,4 +1028,105 @@ transform: scale(1.1);
 .stat > .stat-data {
     font-size: 20px;
     font-weight: bold;
+}
+
+.filter-area {
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 55%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 250px;
+}
+
+.filter-area > h2 {
+    color: #ff4500;
+    margin-bottom: 20px;
+}
+
+.filter-option {
+    margin: 15px 0px 15px 0px;
+}
+
+.filter-option-name {
+    margin: 10px 0px 10px 0px;
+}
+
+.filter-icon {
+    margin-right: 3px; 
+    width: 24px; 
+}
+
+select, input[type="checkbox"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 15px;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+.filter-area-check-button {
+    display: block;
+    background-color: orangered;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    text-align: center;
+    width: 60%;
+    margin-left: 30px;
+}
+
+input[type="checkbox"]:checked + .filter-area-check-button {
+    background-color: #000;
+    color: #fff;
+}
+
+#apply-btn , #reset-btn {
+    font-size: 15px;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    display: block;
+    margin-top: 10px;
+}
+
+#apply-btn {
+    background-color: orangered;
+}
+
+#reset-btn {
+    background-color: #777;
+}
+
+.filter-area-check-button:hover {
+    background-color: #cc3700;
+}
+
+input[type="checkbox"]:checked:hover + .filter-area-check-button {
+    background-color: #333;
+}
+
+#apply-btn:hover {
+    background-color: #cc3700;
+}
+
+#reset-btn:hover {
+    background-color: #555;
 }

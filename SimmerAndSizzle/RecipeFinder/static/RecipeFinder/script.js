@@ -189,7 +189,7 @@ function sendRecipe(recipe, url) {
             displayErrorMessage(response["error"]);
         }
         else {
-            // window.location.href += `/../recipes/${response["recipe_id"]}`;
+            window.location.href = window.location.origin + `/recipes/${response["recipe_id"]}`;
         }
     });
     return false;
