@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  .filter-area {
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 250px;
+  }
+  
+  .filter-area > h2 {
+    color: #ff4500;
+    margin-bottom: 20px;
+  }
+
+  .filter-icon {
+    margin-right: 3px; 
+    width: 24px; 
+  }
+
+  select, input[type="checkbox"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+
+  input[type="checkbox"] {
+    display: none;
+  }
+
+  .filter-area-check-button {
+    display: block;
+    background-color: orangered;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    text-align: center;
+    width: 60%;
+    margin-left: 30px;
+  }
+
+  input[type="checkbox"]:checked + .filter-area-check-button {
+    background-color: #000;
+    color: #fff;
+  }
+  
+  #apply-btn , #reset-btn {
+    background-color: orangered;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    display: block;
+    margin-top: 10px;
+  }
+
+  .filter-area-check-button:hover {
+    background-color: #cc3700;
+  }
+
+  #apply-btn:hover , #reset-btn:hover {
+    background-color: #cc3700;
+  }
+ 
+</style>
+</head>
+<body>
+
+<div class="filter-area">
+  <h2><img src="filter.png" alt="Icon" class="filter-icon"> Filter Options</h2>
+  
+  <label for="cuisine">Cuisine:</label>
+  <select id="cuisine">
+    <option value="">Select Cuisine</option>
+    <option value="sherif">Shekow</option>
+    <option value="mohamed">Hamada</option>
+    <option value="osama">OsOs</option>
+  </select>
+  
+  <label for="course">Course:</label>
+  <br>
+  <hr>
+  <div class="filter-area-button-container">
+    <input type="checkbox" id="appetizer" name="course" value="appetizer">
+    <label class="filter-area-check-button" for="appetizer">Appetizer</label>
+  </div>
+  <div class="filter-area-button-container">
+    <input type="checkbox" id="main-course" name="course" value="main-course">
+    <label class="filter-area-check-button" for="main-course">Main Course</label>
+  </div>
+  <div class="filter-area-button-container">
+    <input type="checkbox" id="dessert" name="course" value="dessert">
+    <label class="filter-area-check-button" for="dessert">Dessert</label>
+  </div>
+  <hr>
+  
+  <label for="sort">Sort By:</label>
+  <select id="sort">
+    <option value="alpha">A-Z</option>
+    <option value="prepTime">Prep Time</option>
+    <option value="cookTime">Cook Time</option>
+    <option value="totalTime">Total Time</option>
+  </select>
+  
+  <button id="apply-btn">Apply Filters</button>
+  <button id="reset-btn">Reset</button>
+</div>
+
+</body>
+</html>
