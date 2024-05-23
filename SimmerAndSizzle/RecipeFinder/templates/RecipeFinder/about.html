@@ -1,39 +1,150 @@
-{% extends 'RecipeFinder/layout.html' %}
+{% extends 'RecipeFinder/nav.html' %}
 {% load static %}
-{% block main_view %}
-<div class="about-us-container">
-    <h1>About us</h1>
-    <div class="content">
-        <div class="sent">
-            <div class="bg-content">
-               Is your pantry overflowing with potential, but inspiration lacking? Let us be your guide to creating culinary masterpieces from everyday ingredients.           
-            </div>
-            <div class="sm-content">
-               Welcome to Simmer & Sizzle, the online kitchen where flavor ignites! But today, things are heating up in a different way.
-               It's a Simmer & Sizzle Showdown, and the battleground? Our very own recipe for the ultimate comfort food: mac and cheese!
-            </div>
-            <div class="icons-container">
-                <div class="social-media">
-                    <img src="static/x-icon.png">
-                    <a href="#">Simmer & Sizzle</a>
-                </div>
-                <div class="social-media">
-                    <img src="static/fb-icon.png">
-                    <a href="#">Simmer & Sizzle</a>
-                </div>
-                <div class="social-media">
-                    <img src="static/ig-icon.png">
-                    <a href="#">Simmer & Sizzle</a>
-                </div>
-                <div class="social-media">
-                    <img src="static/yt-icon.png">
-                    <a href="#">Simmer & Sizzle</a>
-                </div>
-            </div>
+{% block style %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet"  />
+{% endblock %}
+
+{% block body %}
+<div class="about_body">
+  <section class="about_about-us">
+      <div class="about_about">
+        <img src="{% static 'RecipeFinder/High-protein-pack-main-image.png' %}" class="about_pic" />
+        <div class="about_text">
+          <h2 class = "about_h2">About Us</h2>
+          <h5 class="about_h5"><span class="about_span">Simmer & Sizzle</span></h5>
+
+          <p>
+            Simmer & Sizzle is your online kitchen companion, serving up a world of delicious and accessible
+             recipes for every home cook. We believe that creating incredible meals shouldn't be an exclusive club. 
+             Our recipes are designed to be easy to follow, 
+            bursting with flavor, and perfect for all skill levels, right here on your screen.
+            <br>
+            <br>
+            Whether you're a seasoned chef or a curious beginner, we have something to inspire you.
+             Explore our vast collection of recipes that span a range of cuisines, dietary needs,
+              and cooking techniques. So put on your virtual apron, get ready to explore, 
+              and let Simmer & Sizzle help you create culinary magic in your kitchen!</p>
+          <div class="about_data">
+            <a href="#about_ourTeam" class="about_hire">Our Team</a>
+          </div>
         </div>
-        <div class="image-container">
-            <img src="static/tablet-ss.png" alt="Not for now" id="image">
+      </div>
+  </section>
+    
+  <div class="about_wrapper">
+      <h1 class="about_h1" class="about_h1">Our Services</h1>
+           <div class="about_content-box">
+              <div class="about_card">
+                  <i class="bx bx-bar-chart-alt bx-md"></i>
+                  <h2 class ="about_h2">Simple & Delicious</h2>
+                <p> We focus on clear instructions, readily available ingredients, and everyday cooking methods 
+                  to make delicious food achievable for everyone, online and off. </p>
+
+              </div>
+              <div class="about_card">
+                  <i class="bx bx-laptop bx-md"></i>
+                  <h2 class ="about_h2">Recipe Discovery</h2>
+                 <p>explore our vast collection of recipes that span a range of cuisines, dietary needs, and cooking techniques.
+                   Use our search filters and browse by category to find the perfect dish for any occasion</p>
+                       
+              </div>
+              <div class="about_card">
+                  <i class='bx bx-user bx-md'></i>
+
+                  <h2 class ="about_h2">Meal Planning Made Easy</h2>
+              <p>Struggle with what to cook each week? We offer meal planning tools and 
+                suggestions to help you create balanced and delicious weekly menus</p>
+                       
+              </div>
+              <div class="about_card">
+                  <i class="bx bx-mail-send bx-md"></i>
+                  <h2 class ="about_h2">Simmering Community</h2>
+                  <p> Share your creations, ask questions, and connect
+                     with fellow food lovers in our vibrant online community</p>
+                       
+              </div>
+              <div class="about_card">
+                  <i class="bx bx-bar-chart-alt bx-md"></i>
+                  <h2 class ="about_h2">Skill-Building Techniques</h2>
+                  <p> Want to master a new cooking method or impress your guests with a fancy dish? 
+                    We offer tutorials and guides to help you develop your culinary skills</p>
+                       
+              </div>
+              <div class="about_card">
+                  <i class="bx bx-paint bx-md"></i>
+                  <h2 class ="about_h2">Personalized Recommendations</h2>
+                  <p> Share your creations, ask questions, and connect with fellow food lovers in our online forum.
+                     Get feedback, swap tips, and find inspiration from a community that shares your passion for food</p>
+                       
+              </div>
+           </div>
+  </div>
+
+
+  <section id = "about_ourTeam">
+      <div class="about_row">
+        <h1 class="about_h1">Our Team</h1>
+      </div>
+      <div class="about_row row-sp">
+          <div class="about_column">
+          <div class="about_card" id = "Usama_profile">
+           
+            <h3 class="about_h3">Usama Refaat</h3>
+            <div class="about_icons">
+
+              <a href="https://www.linkedin.com/in/osama-refaat22/">
+                <i class="fab fa-linkedin"></i>
+              </a>
+              <a href="https://github.com/UsamaRefaat">
+                <i class="fab fa-github"></i>
+              </a>
+              <a href="mailto:osamarefaatsubm@gmail.com">
+                <i class="fas fa-envelope"></i>
+              </a>
+            </div>
+          </div>
+        </div>     
+        <div class="about_column">
+          <div class="about_card" id = "Sherif_profile">
+          
+            <h3 class="about_h3">Sherif Youssef</h3>
+            <div class="about_icons">
+
+              <a href="https://www.linkedin.com/in/sherif-youssef-3702182a6/">
+                <i class="fab fa-linkedin"></i>
+              </a>
+              <a href="https://github.com/Shekow">
+                <i class="fab fa-github"></i>
+              </a>
+              <a href="mailto:sherifyousef209@gmail.com">
+                <i class="fas fa-envelope"></i>
+              </a>
+            </div>
+          </div>
         </div>
-    </div>
+         <div class="about_column">
+          <div class="about_card" id = "Mohamed_profile">
+           
+            <h3 class="about_h3">Mohamed Hesham</h3>
+           
+            <div class="about_icons">
+
+              <a href="https://www.linkedin.com/in/mohamed-hesham-9215402a5/">
+                <i class="fab fa-linkedin"></i>
+              </a>
+              <a href="https://github.com/Mohamed-hesham-21">
+                <i class="fab fa-github"></i>
+              </a>
+              <a href="mailto:mohamed.hesham.offical@gmail.com">
+                <i class="fas fa-envelope"></i>
+              </a>
+            </div>
+          </div>
+        </div> 
+      </div>
+  </section>
+
 </div>
 {% endblock %}
+</html>

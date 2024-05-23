@@ -1,3 +1,4 @@
+import os
 import json
 from django.templatetags.static import static
 from django.contrib import auth
@@ -10,12 +11,11 @@ from django import forms
 from random import choice 
 from django.core.paginator import Paginator
 from django.core.files.base import ContentFile
-
 from . import models
 import base64
 from io import BytesIO
 from PIL import Image
-import os
+
 
 CATEGORY_LIMIT = 3
 RECIPE_PER_CATEGORY_LIMIT = 10
@@ -88,6 +88,14 @@ class NewStepForm(forms.ModelForm):
         model = models.Step
         fields = (
             "content",
+        )
+
+class NewCuisineForm(forms.ModelForm):
+    class Meta:
+        model = models.Cuisine
+        fields = (
+            "name",
+            "info",
         )
 
 # Helper functions
@@ -228,11 +236,11 @@ def getRecipeRecommendations(recipes, recipe):
     return recipes.filter(cuisine=recipe.cuisine, course=recipe.course).exclude(id=recipe.id)
 
 def getPersonalizedRecommendations(recipes, user):
-    allRecipes = []
+    allRecipes = models.Recipe.objects.none();
     for view in user.views.order_by("-timestamp")[:10]:
-        allRecipes += list(getRecipeRecommendations(recipes, view.recipe))
+        allRecipes |= getRecipeRecommendations(recipes, view.recipe)
     
-    return sorted(allRecipes, key=lambda recipe: allRecipes.count(recipe), reverse=True)
+    return sorted(list(allRecipes), key=lambda recipe: allRecipes.count(recipe), reverse=True)
 
 def getTrendingCuisine():
     cuisineViews = {}
@@ -273,10 +281,10 @@ def getFeed(user):
         cuisine = choice(list(querySet))
         course = choice(models.Recipe.courses())
         API.append({
-            "header": f"Discover: {cuisine.name} {course}",
-            "request": {"cusisine": 1, "course": course},
-            "id": f"random-container-{cuisine.name}-{course}",
-        })
+                "header": f"Discover: {cuisine.name} {course}",
+                "request": {"cusisine": 1, "course": course},
+                "id": f"random-container-{cuisine.name}-{course}",
+            })
     return API
 
 # Views
@@ -306,13 +314,6 @@ def about_view(request):
 
 def recipes_view(request):
     return render(request, "RecipeFinder/recipes.html", defaultContext())
-    # return render(request, "RecipeFinder/category.html", defaultContext({
-    #     "API": [{
-    #         "header": "All recipes",
-    #         "request": {"order_by": "date_added",},
-    #         "id": "all-recipes-container",
-    #     }]
-    # }))
 
 @login_required(login_url='login')
 def favourites_view(request):
@@ -451,7 +452,6 @@ def recipe_view(request, id):
 
 # API
 
-@csrf_exempt
 @exception_handle_api
 def register(request):
     response = checkRequest(request, auth=False)
@@ -467,8 +467,7 @@ def register(request):
 
     userForm = NewUserForm(data)
     if not userForm.is_valid():
-        errors = checkFormErrors(userForm)
-        return JsonResponse({"error": errors[0]}, status=400)
+        return JsonResponse({"error": checkFormErrors(userForm)[0]}, status=400)
 
     if models.User.objects.filter(username=data["username"]).exists():
         return JsonResponse({"error": "Username already taken."}, status=400)
@@ -478,7 +477,6 @@ def register(request):
     auth.login(request, user)
     return JsonResponse({"success": "User authenticated successfully"}, status=200)
 
-@csrf_exempt
 @exception_handle_api
 def login(request):
     response = checkRequest(request, auth=False)
@@ -496,7 +494,6 @@ def login(request):
     auth.login(request, user)
     return JsonResponse({"success": "User authenticated successfully"}, status=200)
 
-@csrf_exempt
 @exception_handle_api
 def add_recipe(request):
     response = checkRequest(request, admin=False)
@@ -582,7 +579,6 @@ def recipes(request):
         return JsonResponse({"error": "Page doesn't exist"}, status=400)
     return JsonResponse({"recipeList": recipeList}, status=200)
 
-@csrf_exempt
 @exception_handle_api
 def like_recipe(request, id):
     response = checkRequest(request)
@@ -599,7 +595,6 @@ def like_recipe(request, id):
     models.Like.objects.create(user=request.user, recipe=recipe)
     return JsonResponse({"success": "Recipe added to favourites successfully"}, status=200)
 
-@csrf_exempt
 @exception_handle_api 
 def edit_recipe(request, id):
     response = checkRequest(request, admin=False)
@@ -622,8 +617,7 @@ def edit_recipe(request, id):
     for step in stepList:
         step.save()
     return JsonResponse({"recipe_id": recipe.id}, status=200)
-
-@csrf_exempt  
+ 
 @exception_handle_api  
 def delete_recipe(request, id):
     response = checkRequest(request, admin=True)
@@ -637,6 +631,20 @@ def delete_recipe(request, id):
     #     return JsonResponse({"error": "You can't delete a recipe you didn't create"}, status=403)
     recipe.delete()
     return JsonResponse({"success": "Recipe removed successufully"}, status=200)
+
+def add_cuisine(request):
+    response = checkRequest(request, admin=True)
+    if response is not None:
+        return response
+    data = json.loads(request.body);
+    missingKey = checkKeys(data, NewCuisineForm.Meta.fields);
+    if missingKey is not None:
+        return JsonResponse({"error": f"Missing {missingKey}."}, status=400)
+    cuisineForm = NewCuisineForm(data)
+    if not cuisineForm.is_valid():
+        return JsonResponse({"error": checkFormErrors(cuisineForm)[0]}, status=400)
+    cuisine = cuisineForm.save();
+    return JsonResponse({"cuisine_id": cuisine.id}, status=200) 
 
 def units(request):
     units = []

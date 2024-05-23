@@ -15,12 +15,15 @@
                     <textarea name="description" rows="6" class="cool-form space" placeholder="Description">{% block description %}{% endblock %}</textarea>
                 </div>
                 <div class="row-sp">
-                    <select name="cuisine" class="cool-form space" value="{% block cuisine %}{% endblock %}">
-                        <option value="">Cuisine</option>
-                        {% for cuisine in cuisines %}
-                        <option {% if cuisine.id == recipe.cuisine.id %} selected {% endif %} value="{{ cuisine.id }}"> {{ cuisine.name }} </option>
-                        {% endfor %}
-                    </select>
+                    <div class="row category-add">
+                        <select name="cuisine" class="cool-form space" value="{% block cuisine %}{% endblock %}">
+                            <option value="">Cuisine</option>
+                            {% for cuisine in cuisines %}
+                            <option {% if cuisine.id == recipe.cuisine.id %} selected {% endif %} value="{{ cuisine.id }}"> {{ cuisine.name }} </option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" id="add-cuisine-btn" class="add-btn space"></button>
+                    </div>
                     <select name="course" class="cool-form space" value="{% block course %}{% endblock %}">
                         <option value="">Course</option>
                         {% for course in courses %}
@@ -89,4 +92,20 @@
         </div>
     </div>
 </form>
+
+<div id="cuisine-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div class="modal-main-content">
+            <div class="fancy-header space">Add Cuisine</div>
+            <form id="new-cuisine-form" action="#" method="post">
+                <input name="name" type="text" class="cool-form space" placeholder="Cuisine Name">
+                <textarea rows="5" name="info" class="cool-form space" placeholder="Cuisine Info"></textarea> 
+                <div class="modal-buttons">
+                    <button type="submit" class="cool-button space">Confirm</button>
+                </div>
+            </form> 
+        </div>
+    </div>
+</div>
 {% endblock %}
