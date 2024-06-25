@@ -260,6 +260,7 @@ function submitCuisine(modal) {
             info.value = "";
         }
     });
+    window.location.reload();
     return false;
 }
 

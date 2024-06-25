@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded",  async function() {
     let recipeAPI = JSON.parse(RecipeCardLoader.transformJSON(container.innerHTML))[0];
     let recipeCardLoader = new RecipeCardLoader(recipeAPI); 
 
-    while (recipeCardLoader.cont && window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+    while (recipeCardLoader.cont && window.innerHeight + window.scrollY >= document.body.offsetHeight - document.body.clientHeight) {
         await recipeCardLoader.loadCards();
     }
 });
