@@ -8,7 +8,7 @@ function register() {
     let email = form.querySelector("[name=email]").value;
     let password = form.querySelector("[name=password]").value;
     let confirmation = form.querySelector("[name=confirmation]").value;
-    let isAdmin = (form.querySelector("[name=is_admin]").value == 'on' ? true : false);
+    let isAdmin = form.querySelector("[name=is_admin]").checked;
 
     const msg = validateRegister(username, email, password, confirmation);
     if (msg) {

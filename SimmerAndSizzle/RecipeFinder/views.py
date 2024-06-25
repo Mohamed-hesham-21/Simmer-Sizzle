@@ -16,10 +16,7 @@ import base64
 from io import BytesIO
 from PIL import Image
 
-
-CATEGORY_LIMIT = 3
-RECIPE_PER_CATEGORY_LIMIT = 10
-RECIPE_LIMIT = 10
+RECIPE_LIMIT = 6
 
 # Some decorators
 
@@ -164,7 +161,7 @@ def getRecipeFromRequest(request):
 
     recipe = recipeForm.save(commit=False)
 
-    if data["recipe"]["image"]:
+    if data["recipe"]["image"] is not None:
         recipe.image = (base64_file(data = data['recipe']['image']))
     recipe.chef = request.user
     ingredientList = []
@@ -239,14 +236,14 @@ def getPersonalizedRecommendations(recipes, user):
     allRecipes = models.Recipe.objects.none();
     for view in user.views.order_by("-timestamp")[:10]:
         allRecipes |= getRecipeRecommendations(recipes, view.recipe)
-    
+    allRecipes = list(allRecipes)
     return sorted(list(allRecipes), key=lambda recipe: allRecipes.count(recipe), reverse=True)
 
 def getTrendingCuisine():
     cuisineViews = {}
     for view in models.View.objects.order_by("-timestamp")[:1000]:
         cuisineID = view.recipe.cuisine.id
-        if not cuisineViews.get(cuisineID):
+        if cuisineViews.get(cuisineID) is None:
             cuisineViews[cuisineID] = 0
         cuisineViews[cuisineID] += 1
     trendingCuisine = None
@@ -254,6 +251,7 @@ def getTrendingCuisine():
     for cuisine, views in cuisineViews.items():
         if views > maxViews:
             trendingCuisine = cuisine
+            maxViews = views
     return models.Cuisine.objects.get(id=trendingCuisine) if trendingCuisine else None
 
 def getFeed(user):
@@ -280,11 +278,12 @@ def getFeed(user):
     if querySet.exists():
         cuisine = choice(list(querySet))
         course = choice(models.Recipe.courses())
-        API.append({
-                "header": f"Discover: {cuisine.name} {course}",
-                "request": {"cusisine": 1, "course": course},
-                "id": f"random-container-{cuisine.name}-{course}",
-            })
+        if models.Recipe.objects.filter(cuisine=cuisine, course=course).exists():
+            API.append({
+                    "header": f"Discover: {cuisine.name} {course}",
+                    "request": {"cuisine": cuisine.id, "course": course},
+                    "id": f"random-container-{cuisine.name}-{course}",
+                })
     return API
 
 # Views
@@ -464,7 +463,7 @@ def register(request):
 
     if data["password"] != data["confirmation"]:
         return JsonResponse({"error": "Passwords don't match."}, status=400)
-
+    print(data)
     userForm = NewUserForm(data)
     if not userForm.is_valid():
         return JsonResponse({"error": checkFormErrors(userForm)[0]}, status=400)
@@ -567,7 +566,7 @@ def recipes(request):
         if data["order_by"] == "popularity":
             recipeList.sort(key=lambda recipe: recipe.popularityKey(), reverse=True)
         elif data["order_by"] == "alphabetical":
-            recipeList.sort(key=lambda recipe: recipe.name, reverse=True)
+            recipeList.sort(key=lambda recipe: recipe.name)
         else:
             recipeList.sort(key=lambda recipe: recipe.dateAdded, reverse=True)
     
@@ -609,6 +608,8 @@ def edit_recipe(request, id):
     if isinstance(response, JsonResponse):
         return response
     recipe, ingredientList, stepList = response
+    if not recipe.image:
+        recipe.image = oldRecipe.image
     oldRecipe.delete()
     recipe.id = id
     recipe.save()

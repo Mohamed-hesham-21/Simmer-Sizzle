@@ -8,4 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelector("#new-recipe-form").onsubmit = () => saveRecipe(true);
     document.querySelector("#delete-recipe-button").onclick = deleteRecipe;
+    document.querySelector("#cancel-button").onclick = () => {
+        history.back()
+    }
 });

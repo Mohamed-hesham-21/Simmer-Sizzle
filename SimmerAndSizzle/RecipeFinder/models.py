@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
-alpha = RegexValidator(r'^[a-zA-Z]*$', "Only alphabetic letters are allowed.")
+alpha = RegexValidator(r'^[a-zA-Z ]*$', "Only alphabetic letters are allowed.")
 alphanumeric = RegexValidator(r'^[0-9a-zA-Z]*$', "Only alphanumeric characters are allowed.")
 
 def nonNegative(value):
@@ -105,7 +105,7 @@ class Recipe(models.Model):
 
 class Step(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name="steps")
-    content = models.CharField(max_length=200)
+    content = models.CharField(max_length=500)
     index = models.IntegerField()
 
     def __str__(self):

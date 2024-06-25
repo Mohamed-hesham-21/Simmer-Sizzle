@@ -32,12 +32,7 @@ function Ingredient(name, quantity, unit) {
 }
 
 async function toggleLike(button) {
-    await fetch(`${window.location.origin}/api/recipes/${button.dataset.id}/like`, {
-        method: "POST",
-    }).then(response => response.json()).then(response => {
-        if ("error" in response)
-            window.location.href = window.location.origin + "/login";
-    });
+    await sendLikeRequest(button.dataset.id);
     if (button.classList.contains("card-fav-button-filled"))
         button.classList.remove("card-fav-button-filled");
     else
@@ -45,12 +40,7 @@ async function toggleLike(button) {
 }
 
 async function toggleSave(button) {
-    await fetch(`${window.location.origin}/api/recipes/${getRecipeID()}/like`, {
-        method: "POST",
-    }).then(response => response.json()).then(response => {
-        if ("error" in response)
-            window.location.href = window.location.origin + "/login";
-    });
+    await sendLikeRequest(getRecipeID())
     let diff = 1;
     if (button.innerHTML == 'Save')
         button.innerHTML = 'Unsave';
@@ -58,6 +48,19 @@ async function toggleSave(button) {
         button.innerHTML = 'Save', diff *= -1;
     let countContainer = document.querySelector("#likes-count");
     countContainer.innerHTML = Number(countContainer.innerHTML) + diff;
+}
+
+async function sendLikeRequest(recipeID) {
+    await fetch(`${window.location.origin}/api/recipes/${recipeID}/like`, {
+        method: "POST",
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    }).then(response => response.json()).then(response => {
+        if ("error" in response)
+            window.location.href = window.location.origin + "/login";
+    });
 }
 
 function displayErrorMessage(msg) {
@@ -92,8 +95,8 @@ class RecipeCardLoader {
         this.recipeAPI["request"]["page"] = 1;
         if (infiniteScroll) {
             window.onscroll = () => {
-                if ((window.innerHeight + window.scrollY >= document.body.offsetHeight) && this.cont)
-                    this.loadCards()
+                if ((window.innerHeight + window.scrollY + 100 >= document.body.offsetHeight - document.body.clientHeight) && this.cont)
+                    this.loadCards(), console.log("yay")
             };
         }
     }

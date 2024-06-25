@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded",  async function() {
-    console.log("hey");
     let recipeAPI = {
         "id": "filtered-recipes-container",
         "request": {
@@ -11,10 +10,12 @@ document.addEventListener("DOMContentLoaded",  async function() {
     document.querySelector("#apply-btn").onclick =  applyFilters;
 });
 
+var recipeCardLoader
+
 async function loadCards(recipeAPI) {
     document.querySelector(`#${recipeAPI["id"]}`).innerHTML = "";
-    let recipeCardLoader = new RecipeCardLoader(recipeAPI); 
-    while (recipeCardLoader.cont && window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+    recipeCardLoader = new RecipeCardLoader(recipeAPI, true); 
+    while (recipeCardLoader.cont && window.innerHeight + window.scrollY >= document.body.offsetHeight - document.body.clientHeight) {
         await recipeCardLoader.loadCards();
     }
 }
